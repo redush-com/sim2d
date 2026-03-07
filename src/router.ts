@@ -6,20 +6,14 @@ import { renderProfileScreen } from './ui/profile-screen';
 import { authStore } from './auth/auth-store';
 import { resolveShareToken } from './db/shared-links';
 import { getSimulationById } from './db/saved-simulations';
+import { navigateTo } from './navigation';
+
+export { navigateTo } from './navigation';
 
 /** Parsed route with name and optional parameters */
 interface Route {
 	name: string;
 	params: Record<string, string>;
-}
-
-/**
- * Navigates to a path using the History API without a full page reload.
- * @param path - the URL path to navigate to (e.g. '/sim/boids')
- */
-export function navigateTo(path: string): void {
-	history.pushState(null, '', path);
-	window.dispatchEvent(new PopStateEvent('popstate'));
 }
 
 /**

@@ -14,7 +14,10 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"typecheck": "tsc --noEmit",
-		"check": "npm run typecheck && npm run lint && npm run format:check"
+		"arch": "depcruise src --config .dependency-cruiser.cjs",
+		"check": "npm run typecheck && npm run lint && npm run format:check && npm run arch",
+		"e2e": "playwright test",
+		"e2e:ui": "playwright test --ui"
 	},
 	"lint-staged": {
 		"*.{ts,js}": [
@@ -39,6 +42,8 @@
 	"description": "Interactive 2D swarm intelligence simulator",
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
+		"@playwright/test": "^1.58.2",
+		"dependency-cruiser": "^17.3.8",
 		"eslint": "^10.0.3",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.3.2",

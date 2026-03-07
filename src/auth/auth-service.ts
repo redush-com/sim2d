@@ -1,4 +1,6 @@
 import { supabase, isSupabaseConfigured } from './supabase-client';
+
+export { isSupabaseConfigured } from './supabase-client';
 import { authStore } from './auth-store';
 import type { Provider } from '@supabase/supabase-js';
 

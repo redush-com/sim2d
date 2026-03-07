@@ -6,7 +6,7 @@ import {
 	type SavedSimulation,
 } from '../db/saved-simulations';
 import { createShareLink, buildShareUrl } from '../db/shared-links';
-import { navigateTo } from '../router';
+import { navigateTo } from '../navigation';
 
 /**
  * Renders the user profile screen with saved simulations list.

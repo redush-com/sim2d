@@ -1,5 +1,4 @@
-import { signInWithProvider } from '../auth/auth-service';
-import { isSupabaseConfigured } from '../auth/supabase-client';
+import { signInWithProvider, isSupabaseConfigured } from '../auth/auth-service';
 
 /**
  * Renders the login screen with OAuth provider buttons.

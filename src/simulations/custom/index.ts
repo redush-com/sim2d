@@ -7,7 +7,7 @@ import { getTemplates } from '../../editor/templates';
 import { clearCanvas } from '../../rendering/shared';
 import { saveSimulation } from '../../db/saved-simulations';
 import { authStore } from '../../auth/auth-store';
-import { navigateTo } from '../../router';
+import { navigateTo } from '../../navigation';
 
 /**
  * Handles the save button click: prompts for a title, saves the current

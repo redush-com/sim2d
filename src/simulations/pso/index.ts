@@ -8,7 +8,7 @@ import { buildPanel, type PanelControls } from '../../ui/panel-builder';
 import { createLoop } from '../../loop';
 import { authStore } from '../../auth/auth-store';
 import { saveSimulation } from '../../db/saved-simulations';
-import { navigateTo } from '../../router';
+import { navigateTo } from '../../navigation';
 
 /** Panel configuration for the PSO simulation */
 const PSO_PANEL_CONFIG = {

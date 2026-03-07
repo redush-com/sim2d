@@ -16,7 +16,7 @@ import { initInteraction } from '../../ui/interaction';
 import { createLoop } from '../../loop';
 import { authStore } from '../../auth/auth-store';
 import { saveSimulation } from '../../db/saved-simulations';
-import { navigateTo } from '../../router';
+import { navigateTo } from '../../navigation';
 
 /**
  * Handles saving the current APF configuration to the database.
