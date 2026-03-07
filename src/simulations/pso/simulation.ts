@@ -11,22 +11,22 @@ import * as vec from '../../math/vector';
  * @returns a new particle with evaluated personal best
  */
 function createParticle(fitnessFn: (x: number, y: number) => number): Particle {
-  const position: Vec2 = {
-    x: SEARCH_BOUNDS.min + Math.random() * SEARCH_RANGE,
-    y: SEARCH_BOUNDS.min + Math.random() * SEARCH_RANGE,
-  };
-  const velocity: Vec2 = {
-    x: (Math.random() - 0.5) * 2,
-    y: (Math.random() - 0.5) * 2,
-  };
-  const value = fitnessFn(position.x, position.y);
+	const position: Vec2 = {
+		x: SEARCH_BOUNDS.min + Math.random() * SEARCH_RANGE,
+		y: SEARCH_BOUNDS.min + Math.random() * SEARCH_RANGE,
+	};
+	const velocity: Vec2 = {
+		x: (Math.random() - 0.5) * 2,
+		y: (Math.random() - 0.5) * 2,
+	};
+	const value = fitnessFn(position.x, position.y);
 
-  return {
-    position,
-    velocity,
-    personalBestPosition: position,
-    personalBestValue: value,
-  };
+	return {
+		position,
+		velocity,
+		personalBestPosition: position,
+		personalBestValue: value,
+	};
 }
 
 /**
@@ -36,29 +36,29 @@ function createParticle(fitnessFn: (x: number, y: number) => number): Particle {
  * @returns flat row-major array of normalized fitness values
  */
 export function computeHeatmapData(functionIndex: number): number[] {
-  const fitnessFn = getFitnessFunction(functionIndex);
-  const data = new Array<number>(HEATMAP_COLS * HEATMAP_ROWS);
+	const fitnessFn = getFitnessFunction(functionIndex);
+	const data = new Array<number>(HEATMAP_COLS * HEATMAP_ROWS);
 
-  let minVal = Infinity;
-  let maxVal = -Infinity;
+	let minVal = Infinity;
+	let maxVal = -Infinity;
 
-  for (let r = 0; r < HEATMAP_ROWS; r++) {
-    for (let c = 0; c < HEATMAP_COLS; c++) {
-      const x = SEARCH_BOUNDS.min + (c / (HEATMAP_COLS - 1)) * SEARCH_RANGE;
-      const y = SEARCH_BOUNDS.min + (r / (HEATMAP_ROWS - 1)) * SEARCH_RANGE;
-      const val = fitnessFn(x, y);
-      data[r * HEATMAP_COLS + c] = val;
-      if (val < minVal) minVal = val;
-      if (val > maxVal) maxVal = val;
-    }
-  }
+	for (let r = 0; r < HEATMAP_ROWS; r++) {
+		for (let c = 0; c < HEATMAP_COLS; c++) {
+			const x = SEARCH_BOUNDS.min + (c / (HEATMAP_COLS - 1)) * SEARCH_RANGE;
+			const y = SEARCH_BOUNDS.min + (r / (HEATMAP_ROWS - 1)) * SEARCH_RANGE;
+			const val = fitnessFn(x, y);
+			data[r * HEATMAP_COLS + c] = val;
+			if (val < minVal) minVal = val;
+			if (val > maxVal) maxVal = val;
+		}
+	}
 
-  const range = maxVal - minVal || 1;
-  for (let i = 0; i < data.length; i++) {
-    data[i] = (data[i] - minVal) / range;
-  }
+	const range = maxVal - minVal || 1;
+	for (let i = 0; i < data.length; i++) {
+		data[i] = (data[i] - minVal) / range;
+	}
 
-  return data;
+	return data;
 }
 
 /**
@@ -67,18 +67,18 @@ export function computeHeatmapData(functionIndex: number): number[] {
  * @returns initial simulation state with evaluated particles and heatmap
  */
 export function createSimulation(params: PsoParams): PsoState {
-  const fitnessFn = getFitnessFunction(params.functionIndex);
-  const particles = Array.from({ length: params.particleCount }, () => createParticle(fitnessFn));
+	const fitnessFn = getFitnessFunction(params.functionIndex);
+	const particles = Array.from({ length: params.particleCount }, () => createParticle(fitnessFn));
 
-  const { globalBestPosition, globalBestValue } = findGlobalBest(particles);
+	const { globalBestPosition, globalBestValue } = findGlobalBest(particles);
 
-  return {
-    particles,
-    globalBestPosition,
-    globalBestValue,
-    params,
-    heatmapData: computeHeatmapData(params.functionIndex),
-  };
+	return {
+		particles,
+		globalBestPosition,
+		globalBestValue,
+		params,
+		heatmapData: computeHeatmapData(params.functionIndex),
+	};
 }
 
 /**
@@ -86,17 +86,20 @@ export function createSimulation(params: PsoParams): PsoState {
  * @param particles - array of particles to search
  * @returns the global best position and fitness value
  */
-function findGlobalBest(particles: Particle[]): { globalBestPosition: Vec2; globalBestValue: number } {
-  let bestIdx = 0;
-  for (let i = 1; i < particles.length; i++) {
-    if (particles[i].personalBestValue < particles[bestIdx].personalBestValue) {
-      bestIdx = i;
-    }
-  }
-  return {
-    globalBestPosition: particles[bestIdx].personalBestPosition,
-    globalBestValue: particles[bestIdx].personalBestValue,
-  };
+function findGlobalBest(particles: Particle[]): {
+	globalBestPosition: Vec2;
+	globalBestValue: number;
+} {
+	let bestIdx = 0;
+	for (let i = 1; i < particles.length; i++) {
+		if (particles[i].personalBestValue < particles[bestIdx].personalBestValue) {
+			bestIdx = i;
+		}
+	}
+	return {
+		globalBestPosition: particles[bestIdx].personalBestPosition,
+		globalBestValue: particles[bestIdx].personalBestValue,
+	};
 }
 
 /**
@@ -105,10 +108,10 @@ function findGlobalBest(particles: Particle[]): { globalBestPosition: Vec2; glob
  * @returns clamped position within bounds
  */
 function clampPosition(pos: Vec2): Vec2 {
-  return {
-    x: Math.max(SEARCH_BOUNDS.min, Math.min(SEARCH_BOUNDS.max, pos.x)),
-    y: Math.max(SEARCH_BOUNDS.min, Math.min(SEARCH_BOUNDS.max, pos.y)),
-  };
+	return {
+		x: Math.max(SEARCH_BOUNDS.min, Math.min(SEARCH_BOUNDS.max, pos.x)),
+		y: Math.max(SEARCH_BOUNDS.min, Math.min(SEARCH_BOUNDS.max, pos.y)),
+	};
 }
 
 /**
@@ -121,32 +124,35 @@ function clampPosition(pos: Vec2): Vec2 {
  * @returns updated particle with new position, velocity, and personal best
  */
 function updateParticle(
-  particle: Particle,
-  globalBest: Vec2,
-  params: PsoParams,
-  fitnessFn: (x: number, y: number) => number
+	particle: Particle,
+	globalBest: Vec2,
+	params: PsoParams,
+	fitnessFn: (x: number, y: number) => number,
 ): Particle {
-  const r1 = Math.random();
-  const r2 = Math.random();
+	const r1 = Math.random();
+	const r2 = Math.random();
 
-  const inertia = vec.scale(particle.velocity, params.inertiaWeight);
-  const cognitive = vec.scale(vec.sub(particle.personalBestPosition, particle.position), params.cognitiveWeight * r1);
-  const social = vec.scale(vec.sub(globalBest, particle.position), params.socialWeight * r2);
+	const inertia = vec.scale(particle.velocity, params.inertiaWeight);
+	const cognitive = vec.scale(
+		vec.sub(particle.personalBestPosition, particle.position),
+		params.cognitiveWeight * r1,
+	);
+	const social = vec.scale(vec.sub(globalBest, particle.position), params.socialWeight * r2);
 
-  let newVelocity = vec.add(vec.add(inertia, cognitive), social);
-  newVelocity = vec.clampMagnitude(newVelocity, params.maxSpeed);
+	let newVelocity = vec.add(vec.add(inertia, cognitive), social);
+	newVelocity = vec.clampMagnitude(newVelocity, params.maxSpeed);
 
-  const newPosition = clampPosition(vec.add(particle.position, newVelocity));
-  const newValue = fitnessFn(newPosition.x, newPosition.y);
+	const newPosition = clampPosition(vec.add(particle.position, newVelocity));
+	const newValue = fitnessFn(newPosition.x, newPosition.y);
 
-  const isBetter = newValue < particle.personalBestValue;
+	const isBetter = newValue < particle.personalBestValue;
 
-  return {
-    position: newPosition,
-    velocity: newVelocity,
-    personalBestPosition: isBetter ? newPosition : particle.personalBestPosition,
-    personalBestValue: isBetter ? newValue : particle.personalBestValue,
-  };
+	return {
+		position: newPosition,
+		velocity: newVelocity,
+		personalBestPosition: isBetter ? newPosition : particle.personalBestPosition,
+		personalBestValue: isBetter ? newValue : particle.personalBestValue,
+	};
 }
 
 /**
@@ -157,19 +163,20 @@ function updateParticle(
  * @returns updated simulation state
  */
 export function tick(state: PsoState, _dt: number): PsoState {
-  const fitnessFn = getFitnessFunction(state.params.functionIndex);
+	const fitnessFn = getFitnessFunction(state.params.functionIndex);
 
-  const updatedParticles = state.particles.map((p) =>
-    updateParticle(p, state.globalBestPosition, state.params, fitnessFn)
-  );
+	const updatedParticles = state.particles.map((p) =>
+		updateParticle(p, state.globalBestPosition, state.params, fitnessFn),
+	);
 
-  const best = findGlobalBest(updatedParticles);
-  const globalBestPosition = best.globalBestValue < state.globalBestValue
-    ? best.globalBestPosition
-    : state.globalBestPosition;
-  const globalBestValue = Math.min(best.globalBestValue, state.globalBestValue);
+	const best = findGlobalBest(updatedParticles);
+	const globalBestPosition =
+		best.globalBestValue < state.globalBestValue
+			? best.globalBestPosition
+			: state.globalBestPosition;
+	const globalBestValue = Math.min(best.globalBestValue, state.globalBestValue);
 
-  return { ...state, particles: updatedParticles, globalBestPosition, globalBestValue };
+	return { ...state, particles: updatedParticles, globalBestPosition, globalBestValue };
 }
 
 /**
@@ -179,10 +186,10 @@ export function tick(state: PsoState, _dt: number): PsoState {
  * @returns state with updated params
  */
 export function updateParams(state: PsoState, params: PsoParams): PsoState {
-  if (params.particleCount !== state.params.particleCount) {
-    return createSimulation(params);
-  }
-  return { ...state, params };
+	if (params.particleCount !== state.params.particleCount) {
+		return createSimulation(params);
+	}
+	return { ...state, params };
 }
 
 /**
@@ -191,7 +198,7 @@ export function updateParams(state: PsoState, params: PsoParams): PsoState {
  * @returns state with freshly initialized particles
  */
 export function resetParticles(state: PsoState): PsoState {
-  return createSimulation(state.params);
+	return createSimulation(state.params);
 }
 
 /**
@@ -201,5 +208,5 @@ export function resetParticles(state: PsoState): PsoState {
  * @returns fresh state with new function and recomputed heatmap
  */
 export function setFunction(state: PsoState, functionIndex: number): PsoState {
-  return createSimulation({ ...state.params, functionIndex });
+	return createSimulation({ ...state.params, functionIndex });
 }

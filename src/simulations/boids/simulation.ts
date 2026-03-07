@@ -13,12 +13,12 @@ import * as vec from '../../math/vector';
  * @returns a new BoidAgent
  */
 function createAgent(id: number, width: number, height: number, maxSpeed: number): BoidAgent {
-  const position: Vec2 = {
-    x: Math.random() * width,
-    y: Math.random() * height,
-  };
-  const velocity = vec.scale(vec.randomUnit(), maxSpeed * 0.5);
-  return { id, position, velocity, trail: [position] };
+	const position: Vec2 = {
+		x: Math.random() * width,
+		y: Math.random() * height,
+	};
+	const velocity = vec.scale(vec.randomUnit(), maxSpeed * 0.5);
+	return { id, position, velocity, trail: [position] };
 }
 
 /**
@@ -29,10 +29,10 @@ function createAgent(id: number, width: number, height: number, maxSpeed: number
  * @returns initial simulation state
  */
 export function createSimulation(params: BoidParams, width: number, height: number): BoidState {
-  const agents = Array.from({ length: params.agentCount }, (_, i) =>
-    createAgent(i, width, height, params.maxSpeed)
-  );
-  return { agents, params, width, height };
+	const agents = Array.from({ length: params.agentCount }, (_, i) =>
+		createAgent(i, width, height, params.maxSpeed),
+	);
+	return { agents, params, width, height };
 }
 
 /**
@@ -43,9 +43,9 @@ export function createSimulation(params: BoidParams, width: number, height: numb
  * @returns array of neighboring boids (excluding self)
  */
 function findNeighbors(agent: BoidAgent, agents: BoidAgent[], radius: number): BoidAgent[] {
-  return agents.filter(
-    (other) => other.id !== agent.id && vec.distance(agent.position, other.position) < radius
-  );
+	return agents.filter(
+		(other) => other.id !== agent.id && vec.distance(agent.position, other.position) < radius,
+	);
 }
 
 /**
@@ -57,12 +57,12 @@ function findNeighbors(agent: BoidAgent, agents: BoidAgent[], radius: number): B
  * @returns wrapped position
  */
 function wrapPosition(position: Vec2, width: number, height: number): Vec2 {
-  let { x, y } = position;
-  if (x < 0) x += width;
-  else if (x > width) x -= width;
-  if (y < 0) y += height;
-  else if (y > height) y -= height;
-  return { x, y };
+	let { x, y } = position;
+	if (x < 0) x += width;
+	else if (x > width) x -= width;
+	if (y < 0) y += height;
+	else if (y > height) y -= height;
+	return { x, y };
 }
 
 /**
@@ -76,29 +76,33 @@ function wrapPosition(position: Vec2, width: number, height: number): Vec2 {
  * @returns updated boid state
  */
 function updateAgent(
-  agent: BoidAgent,
-  agents: BoidAgent[],
-  params: BoidParams,
-  dt: number,
-  width: number,
-  height: number
+	agent: BoidAgent,
+	agents: BoidAgent[],
+	params: BoidParams,
+	dt: number,
+	width: number,
+	height: number,
 ): BoidAgent {
-  const neighbors = findNeighbors(agent, agents, params.perceptionRadius);
+	const neighbors = findNeighbors(agent, agents, params.perceptionRadius);
 
-  const sep = vec.scale(separation(agent, neighbors), params.separationWeight);
-  const ali = vec.scale(alignment(agent, neighbors), params.alignmentWeight);
-  const coh = vec.scale(cohesion(agent, neighbors), params.cohesionWeight);
+	const sep = vec.scale(separation(agent, neighbors), params.separationWeight);
+	const ali = vec.scale(alignment(agent, neighbors), params.alignmentWeight);
+	const coh = vec.scale(cohesion(agent, neighbors), params.cohesionWeight);
 
-  const force = vec.clampMagnitude(vec.add(vec.add(sep, ali), coh), params.maxForce);
-  const newVelocity = vec.clampMagnitude(vec.add(agent.velocity, force), params.maxSpeed);
-  const newPosition = wrapPosition(vec.add(agent.position, vec.scale(newVelocity, dt)), width, height);
+	const force = vec.clampMagnitude(vec.add(vec.add(sep, ali), coh), params.maxForce);
+	const newVelocity = vec.clampMagnitude(vec.add(agent.velocity, force), params.maxSpeed);
+	const newPosition = wrapPosition(
+		vec.add(agent.position, vec.scale(newVelocity, dt)),
+		width,
+		height,
+	);
 
-  const trail = [...agent.trail, newPosition];
-  if (trail.length > TRAIL_LENGTH) {
-    trail.splice(0, trail.length - TRAIL_LENGTH);
-  }
+	const trail = [...agent.trail, newPosition];
+	if (trail.length > TRAIL_LENGTH) {
+		trail.splice(0, trail.length - TRAIL_LENGTH);
+	}
 
-  return { ...agent, position: newPosition, velocity: newVelocity, trail };
+	return { ...agent, position: newPosition, velocity: newVelocity, trail };
 }
 
 /**
@@ -108,11 +112,11 @@ function updateAgent(
  * @returns updated simulation state
  */
 export function tick(state: BoidState, dt: number): BoidState {
-  const { agents, params, width, height } = state;
-  const updatedAgents = agents.map((agent) =>
-    updateAgent(agent, agents, params, dt, width, height)
-  );
-  return { ...state, agents: updatedAgents };
+	const { agents, params, width, height } = state;
+	const updatedAgents = agents.map((agent) =>
+		updateAgent(agent, agents, params, dt, width, height),
+	);
+	return { ...state, agents: updatedAgents };
 }
 
 /**
@@ -122,10 +126,10 @@ export function tick(state: BoidState, dt: number): BoidState {
  * @returns state with updated params (and possibly new agents)
  */
 export function updateParams(state: BoidState, params: BoidParams): BoidState {
-  if (params.agentCount !== state.agents.length) {
-    return createSimulation(params, state.width, state.height);
-  }
-  return { ...state, params };
+	if (params.agentCount !== state.agents.length) {
+		return createSimulation(params, state.width, state.height);
+	}
+	return { ...state, params };
 }
 
 /**
@@ -134,5 +138,5 @@ export function updateParams(state: BoidState, params: BoidParams): BoidState {
  * @returns state with freshly spawned agents
  */
 export function resetAgents(state: BoidState): BoidState {
-  return createSimulation(state.params, state.width, state.height);
+	return createSimulation(state.params, state.width, state.height);
 }

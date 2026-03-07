@@ -8,22 +8,55 @@ import { buildPanel, type PanelControls } from '../../ui/panel-builder';
 import { createLoop } from '../../loop';
 import { authStore } from '../../auth/auth-store';
 import { saveSimulation } from '../../db/saved-simulations';
-import { navigateTo } from '../../router';
+import { navigateTo } from '../../navigation';
 
 /** Panel configuration for the Boids flocking simulation */
 const BOIDS_PANEL_CONFIG = {
-  title: 'Boids Flocking',
-  description: 'Reynolds 1987 flocking model. Agents follow three local rules: separation, alignment, and cohesion.',
-  sliders: [
-    { section: 'Flocking Weights', key: 'separationWeight', label: 'Separation', min: 0.1, max: 5, step: 0.1, decimals: 1 },
-    { key: 'alignmentWeight', label: 'Alignment', min: 0.1, max: 5, step: 0.1, decimals: 1 },
-    { key: 'cohesionWeight', label: 'Cohesion', min: 0.1, max: 5, step: 0.1, decimals: 1 },
-    { section: 'Perception', key: 'perceptionRadius', label: 'Radius', min: 20, max: 300, step: 5, decimals: 0 },
-    { section: 'Motion', key: 'maxSpeed', label: 'Max speed', min: 50, max: 500, step: 10, decimals: 0 },
-    { key: 'maxForce', label: 'Max force', min: 1, max: 50, step: 1, decimals: 0 },
-    { section: 'Swarm', key: 'agentCount', label: 'Agents', min: 5, max: 200, step: 5, decimals: 0 },
-  ],
-  info: '<code>F = w_s*Separation + w_a*Alignment + w_c*Cohesion</code><br/>Three simple rules create complex flocking behavior.<br/>Craig Reynolds, 1987',
+	title: 'Boids Flocking',
+	description:
+		'Reynolds 1987 flocking model. Agents follow three local rules: separation, alignment, and cohesion.',
+	sliders: [
+		{
+			section: 'Flocking Weights',
+			key: 'separationWeight',
+			label: 'Separation',
+			min: 0.1,
+			max: 5,
+			step: 0.1,
+			decimals: 1,
+		},
+		{ key: 'alignmentWeight', label: 'Alignment', min: 0.1, max: 5, step: 0.1, decimals: 1 },
+		{ key: 'cohesionWeight', label: 'Cohesion', min: 0.1, max: 5, step: 0.1, decimals: 1 },
+		{
+			section: 'Perception',
+			key: 'perceptionRadius',
+			label: 'Radius',
+			min: 20,
+			max: 300,
+			step: 5,
+			decimals: 0,
+		},
+		{
+			section: 'Motion',
+			key: 'maxSpeed',
+			label: 'Max speed',
+			min: 50,
+			max: 500,
+			step: 10,
+			decimals: 0,
+		},
+		{ key: 'maxForce', label: 'Max force', min: 1, max: 50, step: 1, decimals: 0 },
+		{
+			section: 'Swarm',
+			key: 'agentCount',
+			label: 'Agents',
+			min: 5,
+			max: 200,
+			step: 5,
+			decimals: 0,
+		},
+	],
+	info: '<code>F = w_s*Separation + w_a*Alignment + w_c*Cohesion</code><br/>Three simple rules create complex flocking behavior.<br/>Craig Reynolds, 1987',
 };
 
 /**
@@ -34,26 +67,21 @@ const BOIDS_PANEL_CONFIG = {
  * @returns panel controls including pause button
  */
 function buildBoidsPanel(
-  panel: HTMLElement,
-  params: BoidParams,
-  callbacks: {
-    onParamsChange: (params: BoidParams) => void;
-    onPause: () => void;
-    onReset: () => void;
-    onSave?: () => void;
-  }
+	panel: HTMLElement,
+	params: BoidParams,
+	callbacks: {
+		onParamsChange: (params: BoidParams) => void;
+		onPause: () => void;
+		onReset: () => void;
+		onSave?: () => void;
+	},
 ): PanelControls {
-  return buildPanel(
-    panel,
-    BOIDS_PANEL_CONFIG,
-    params as unknown as Record<string, number>,
-    {
-      onParamsChange: (p) => callbacks.onParamsChange(p as unknown as BoidParams),
-      onPause: callbacks.onPause,
-      onReset: callbacks.onReset,
-      onSave: callbacks.onSave,
-    }
-  );
+	return buildPanel(panel, BOIDS_PANEL_CONFIG, params as unknown as Record<string, number>, {
+		onParamsChange: (p) => callbacks.onParamsChange(p as unknown as BoidParams),
+		onPause: callbacks.onPause,
+		onReset: callbacks.onReset,
+		onSave: callbacks.onSave,
+	});
 }
 
 /**
@@ -63,22 +91,27 @@ function buildBoidsPanel(
  * @param saveBtn - the save button element to show feedback on (may be null)
  */
 async function handleBoidsSave(
-  getParams: () => Record<string, number>,
-  saveBtn: HTMLButtonElement | null
+	getParams: () => Record<string, number>,
+	saveBtn: HTMLButtonElement | null,
 ): Promise<void> {
-  if (!authStore.getState().user) { navigateTo('/login'); return; }
-  await saveSimulation({
-    title: 'Boids Flocking',
-    description: BOIDS_PANEL_CONFIG.description,
-    sim_type: 'builtin',
-    builtin_id: 'boids',
-    params: getParams(),
-    source_code: undefined,
-  });
-  if (saveBtn) {
-    saveBtn.textContent = 'Saved!';
-    setTimeout(() => { saveBtn.textContent = 'Save Configuration'; }, 1500);
-  }
+	if (!authStore.getState().user) {
+		navigateTo('/login');
+		return;
+	}
+	await saveSimulation({
+		title: 'Boids Flocking',
+		description: BOIDS_PANEL_CONFIG.description,
+		sim_type: 'builtin',
+		builtin_id: 'boids',
+		params: getParams(),
+		source_code: undefined,
+	});
+	if (saveBtn) {
+		saveBtn.textContent = 'Saved!';
+		setTimeout(() => {
+			saveBtn.textContent = 'Save Configuration';
+		}, 1500);
+	}
 }
 
 /**
@@ -88,54 +121,62 @@ async function handleBoidsSave(
  * @param panel - the side panel element for controls
  * @returns a controllable simulation instance
  */
-function createBoidsSimulation(
-  canvas: HTMLCanvasElement,
-  panel: HTMLElement
-): SimulationInstance {
-  const renderer = createRenderer(canvas);
-  const width = canvas.clientWidth;
-  const height = canvas.clientHeight;
-  let state = createSimulation(DEFAULT_PARAMS, width, height);
+function createBoidsSimulation(canvas: HTMLCanvasElement, panel: HTMLElement): SimulationInstance {
+	const renderer = createRenderer(canvas);
+	const width = canvas.clientWidth;
+	const height = canvas.clientHeight;
+	let state = createSimulation(DEFAULT_PARAMS, width, height);
 
-  const loop = createLoop(
-    (dt) => { state = tick(state, dt); },
-    () => { render(renderer, state); }
-  );
+	const loop = createLoop(
+		(dt) => {
+			state = tick(state, dt);
+		},
+		() => {
+			render(renderer, state);
+		},
+	);
 
-  const { pauseBtn, saveBtn, getParams } = buildBoidsPanel(panel, DEFAULT_PARAMS, {
-    onParamsChange: (newParams: BoidParams) => { state = updateParams(state, newParams); },
-    onPause: () => {
-      loop.toggle();
-      pauseBtn.textContent = loop.isRunning() ? 'Pause' : 'Resume';
-    },
-    onReset: () => { state = resetAgents(state); },
-    onSave: () => { handleBoidsSave(getParams, saveBtn); },
-  });
+	const { pauseBtn, saveBtn, getParams } = buildBoidsPanel(panel, DEFAULT_PARAMS, {
+		onParamsChange: (newParams: BoidParams) => {
+			state = updateParams(state, newParams);
+		},
+		onPause: () => {
+			loop.toggle();
+			pauseBtn.textContent = loop.isRunning() ? 'Pause' : 'Resume';
+		},
+		onReset: () => {
+			state = resetAgents(state);
+		},
+		onSave: () => {
+			handleBoidsSave(getParams, saveBtn);
+		},
+	});
 
-  const handleResize = () => {
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = canvas.clientWidth * dpr;
-    canvas.height = canvas.clientHeight * dpr;
-    renderer.ctx.setTransform(1, 0, 0, 1, 0, 0);
-    renderer.ctx.scale(dpr, dpr);
-    state = { ...state, width: canvas.clientWidth, height: canvas.clientHeight };
-  };
-  window.addEventListener('resize', handleResize);
+	const handleResize = (): void => {
+		const dpr = window.devicePixelRatio || 1;
+		canvas.width = canvas.clientWidth * dpr;
+		canvas.height = canvas.clientHeight * dpr;
+		renderer.ctx.setTransform(1, 0, 0, 1, 0, 0);
+		renderer.ctx.scale(dpr, dpr);
+		state = { ...state, width: canvas.clientWidth, height: canvas.clientHeight };
+	};
+	window.addEventListener('resize', handleResize);
 
-  return {
-    start: () => loop.start(),
-    stop: () => loop.stop(),
-    destroy: () => {
-      loop.stop();
-      window.removeEventListener('resize', handleResize);
-    },
-  };
+	return {
+		start: () => loop.start(),
+		stop: () => loop.stop(),
+		destroy: () => {
+			loop.stop();
+			window.removeEventListener('resize', handleResize);
+		},
+	};
 }
 
 register({
-  id: 'boids',
-  title: 'Boids Flocking',
-  description: '50 autonomous agents flock using three simple rules: separation, alignment, and cohesion. No leader, no global plan -- just local interactions creating emergent group behavior.',
-  tags: ['swarm', 'flocking', 'boids', 'emergent-behavior'],
-  create: createBoidsSimulation,
+	id: 'boids',
+	title: 'Boids Flocking',
+	description:
+		'50 autonomous agents flock using three simple rules: separation, alignment, and cohesion. No leader, no global plan -- just local interactions creating emergent group behavior.',
+	tags: ['swarm', 'flocking', 'boids', 'emergent-behavior'],
+	create: createBoidsSimulation,
 });

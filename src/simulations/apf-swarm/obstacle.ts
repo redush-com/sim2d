@@ -9,7 +9,7 @@ import { CANVAS_WIDTH, CANVAS_HEIGHT } from './config';
  * @returns a new Obstacle
  */
 export function createObstacle(position: Vec2, radius: number): Obstacle {
-  return { position, radius };
+	return { position, radius };
 }
 
 /**
@@ -18,14 +18,14 @@ export function createObstacle(position: Vec2, radius: number): Obstacle {
  * @returns array of 5 obstacles
  */
 export function createDefaultObstacles(): Obstacle[] {
-  const cx = CANVAS_WIDTH / 2;
-  const cy = CANVAS_HEIGHT / 2;
+	const cx = CANVAS_WIDTH / 2;
+	const cy = CANVAS_HEIGHT / 2;
 
-  return [
-    createObstacle({ x: cx - 100, y: cy }, 30),
-    createObstacle({ x: cx + 80, y: cy - 120 }, 25),
-    createObstacle({ x: cx + 80, y: cy + 120 }, 25),
-    createObstacle({ x: cx - 200, y: cy - 150 }, 35),
-    createObstacle({ x: cx + 200, y: cy + 80 }, 28),
-  ];
+	return [
+		createObstacle({ x: cx - 100, y: cy }, 30),
+		createObstacle({ x: cx + 80, y: cy - 120 }, 25),
+		createObstacle({ x: cx + 80, y: cy + 120 }, 25),
+		createObstacle({ x: cx - 200, y: cy - 150 }, 35),
+		createObstacle({ x: cx + 200, y: cy + 80 }, 28),
+	];
 }

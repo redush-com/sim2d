@@ -5,8 +5,8 @@ import { renderFireflies, renderAttractionLines, renderGlobalBest } from './glow
 
 /** Context object holding the canvas and 2D rendering context */
 export interface FireflyRendererContext {
-  canvas: HTMLCanvasElement;
-  ctx: CanvasRenderingContext2D;
+	canvas: HTMLCanvasElement;
+	ctx: CanvasRenderingContext2D;
 }
 
 /**
@@ -15,15 +15,15 @@ export interface FireflyRendererContext {
  * @returns renderer context for drawing
  */
 export function createRenderer(canvas: HTMLCanvasElement): FireflyRendererContext {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Failed to get 2D rendering context');
+	const ctx = canvas.getContext('2d');
+	if (!ctx) throw new Error('Failed to get 2D rendering context');
 
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = canvas.clientWidth * dpr;
-  canvas.height = canvas.clientHeight * dpr;
-  ctx.scale(dpr, dpr);
+	const dpr = window.devicePixelRatio || 1;
+	canvas.width = canvas.clientWidth * dpr;
+	canvas.height = canvas.clientHeight * dpr;
+	ctx.scale(dpr, dpr);
 
-  return { canvas, ctx };
+	return { canvas, ctx };
 }
 
 /**
@@ -33,10 +33,10 @@ export function createRenderer(canvas: HTMLCanvasElement): FireflyRendererContex
  * @returns rgba color string
  */
 function contourColorFn(value: number): string {
-  const r = Math.floor(value * 60 + 10);
-  const g = Math.floor(value * 30 + 5);
-  const b = Math.floor((1 - value) * 80 + 30);
-  return `rgba(${r}, ${g}, ${b}, 0.15)`;
+	const r = Math.floor(value * 60 + 10);
+	const g = Math.floor(value * 30 + 5);
+	const b = Math.floor((1 - value) * 80 + 30);
+	return `rgba(${r}, ${g}, ${b}, 0.15)`;
 }
 
 /**
@@ -47,13 +47,13 @@ function contourColorFn(value: number): string {
  * @param time - elapsed time in seconds for animations
  */
 export function render(renderer: FireflyRendererContext, state: FireflyState, time: number): void {
-  const { ctx, canvas } = renderer;
-  const width = canvas.clientWidth;
-  const height = canvas.clientHeight;
+	const { ctx, canvas } = renderer;
+	const width = canvas.clientWidth;
+	const height = canvas.clientHeight;
 
-  clearCanvas(ctx, width, height, '#050510');
-  drawHeatmap(ctx, state.heatmapData, HEATMAP_COLS, HEATMAP_ROWS, width, height, contourColorFn);
-  renderAttractionLines(ctx, state.fireflies, width, height);
-  renderFireflies(ctx, state.fireflies, width, height);
-  renderGlobalBest(ctx, state.globalBestPosition, width, height, time);
+	clearCanvas(ctx, width, height, '#050510');
+	drawHeatmap(ctx, state.heatmapData, HEATMAP_COLS, HEATMAP_ROWS, width, height, contourColorFn);
+	renderAttractionLines(ctx, state.fireflies, width, height);
+	renderFireflies(ctx, state.fireflies, width, height);
+	renderGlobalBest(ctx, state.globalBestPosition, width, height, time);
 }

@@ -8,8 +8,8 @@ import { drawHeatmap } from '../../../rendering/shared';
  * @returns RGBA color string
  */
 function pheromoneColor(value: number): string {
-  const g = Math.min(Math.floor(value * 255), 255);
-  return `rgba(0, ${g}, 0, ${Math.min(value * 0.8 + 0.1, 0.9)})`;
+	const g = Math.min(Math.floor(value * 255), 255);
+	return `rgba(0, ${g}, 0, ${Math.min(value * 0.8 + 0.1, 0.9)})`;
 }
 
 /**
@@ -18,18 +18,18 @@ function pheromoneColor(value: number): string {
  * @returns array of normalized values
  */
 function normalizePheromones(pheromones: Float32Array): number[] {
-  let max = 0;
-  for (let i = 0; i < pheromones.length; i++) {
-    if (pheromones[i] > max) max = pheromones[i];
-  }
+	let max = 0;
+	for (const val of pheromones) {
+		if (val > max) max = val;
+	}
 
-  if (max <= 0) return Array.from(pheromones);
+	if (max <= 0) return Array.from(pheromones);
 
-  const normalized = new Array<number>(pheromones.length);
-  for (let i = 0; i < pheromones.length; i++) {
-    normalized[i] = pheromones[i] / max;
-  }
-  return normalized;
+	const normalized = new Array<number>(pheromones.length);
+	for (let i = 0; i < pheromones.length; i++) {
+		normalized[i] = pheromones[i] / max;
+	}
+	return normalized;
 }
 
 /**
@@ -40,11 +40,11 @@ function normalizePheromones(pheromones: Float32Array): number[] {
  * @param height - canvas height in CSS pixels
  */
 export function renderPheromones(
-  ctx: CanvasRenderingContext2D,
-  state: AcoState,
-  width: number,
-  height: number
+	ctx: CanvasRenderingContext2D,
+	state: AcoState,
+	width: number,
+	height: number,
 ): void {
-  const data = normalizePheromones(state.pheromones);
-  drawHeatmap(ctx, data, state.cols, state.rows, width, height, pheromoneColor);
+	const data = normalizePheromones(state.pheromones);
+	drawHeatmap(ctx, data, state.cols, state.rows, width, height, pheromoneColor);
 }

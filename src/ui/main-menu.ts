@@ -11,40 +11,40 @@ const activeTags = new Set<string>();
  * @param onSelect - callback when a simulation card is clicked
  */
 export function renderMainMenu(
-  container: HTMLElement,
-  simulations: SimulationDefinition[],
-  onSelect: (id: string) => void
+	container: HTMLElement,
+	simulations: SimulationDefinition[],
+	onSelect: (id: string) => void,
 ): void {
-  container.innerHTML = '';
-  activeTags.clear();
-  container.appendChild(createMenuStyles());
+	container.innerHTML = '';
+	activeTags.clear();
+	container.appendChild(createMenuStyles());
 
-  const wrapper = document.createElement('div');
-  wrapper.className = 'menu-wrapper';
+	const wrapper = document.createElement('div');
+	wrapper.className = 'menu-wrapper';
 
-  const header = document.createElement('h1');
-  header.className = 'menu-title';
-  header.textContent = 'sim2d';
-  wrapper.appendChild(header);
+	const header = document.createElement('h1');
+	header.className = 'menu-title';
+	header.textContent = 'sim2d';
+	wrapper.appendChild(header);
 
-  const subtitle = document.createElement('p');
-  subtitle.className = 'menu-subtitle';
-  subtitle.textContent = 'Interactive 2D swarm intelligence simulations';
-  wrapper.appendChild(subtitle);
+	const subtitle = document.createElement('p');
+	subtitle.className = 'menu-subtitle';
+	subtitle.textContent = 'Interactive 2D swarm intelligence simulations';
+	wrapper.appendChild(subtitle);
 
-  const allTags = extractUniqueTags(simulations);
-  const filterBar = createTagFilterBar(allTags, simulations, onSelect);
-  wrapper.appendChild(filterBar);
+	const allTags = extractUniqueTags(simulations);
+	const filterBar = createTagFilterBar(allTags, simulations, onSelect);
+	wrapper.appendChild(filterBar);
 
-  const grid = document.createElement('div');
-  grid.className = 'menu-grid';
+	const grid = document.createElement('div');
+	grid.className = 'menu-grid';
 
-  for (const sim of simulations) {
-    grid.appendChild(createCard(sim, onSelect));
-  }
+	for (const sim of simulations) {
+		grid.appendChild(createCard(sim, onSelect));
+	}
 
-  wrapper.appendChild(grid);
-  container.appendChild(wrapper);
+	wrapper.appendChild(grid);
+	container.appendChild(wrapper);
 }
 
 /**
@@ -53,13 +53,13 @@ export function renderMainMenu(
  * @returns sorted array of unique tag strings
  */
 function extractUniqueTags(simulations: SimulationDefinition[]): string[] {
-  const tagSet = new Set<string>();
-  for (const sim of simulations) {
-    for (const tag of sim.tags) {
-      tagSet.add(tag);
-    }
-  }
-  return Array.from(tagSet).sort();
+	const tagSet = new Set<string>();
+	for (const sim of simulations) {
+		for (const tag of sim.tags) {
+			tagSet.add(tag);
+		}
+	}
+	return Array.from(tagSet).sort();
 }
 
 /**
@@ -70,34 +70,34 @@ function extractUniqueTags(simulations: SimulationDefinition[]): string[] {
  * @returns container element with filter pill buttons
  */
 function createTagFilterBar(
-  tags: string[],
-  simulations: SimulationDefinition[],
-  onSelect: (id: string) => void
+	tags: string[],
+	simulations: SimulationDefinition[],
+	onSelect: (id: string) => void,
 ): HTMLElement {
-  const bar = document.createElement('div');
-  bar.className = 'tag-filter-bar';
+	const bar = document.createElement('div');
+	bar.className = 'tag-filter-bar';
 
-  const allBtn = document.createElement('button');
-  allBtn.className = 'tag-filter-pill tag-filter-pill--active';
-  allBtn.textContent = 'All';
-  allBtn.addEventListener('click', () => {
-    activeTags.clear();
-    updateFilterUI(bar, simulations, onSelect);
-  });
-  bar.appendChild(allBtn);
+	const allBtn = document.createElement('button');
+	allBtn.className = 'tag-filter-pill tag-filter-pill--active';
+	allBtn.textContent = 'All';
+	allBtn.addEventListener('click', () => {
+		activeTags.clear();
+		updateFilterUI(bar, simulations, onSelect);
+	});
+	bar.appendChild(allBtn);
 
-  for (const tag of tags) {
-    const pill = document.createElement('button');
-    pill.className = 'tag-filter-pill';
-    pill.dataset['tag'] = tag;
-    pill.textContent = `#${tag}`;
-    pill.addEventListener('click', () => {
-      toggleTag(tag, bar, simulations, onSelect);
-    });
-    bar.appendChild(pill);
-  }
+	for (const tag of tags) {
+		const pill = document.createElement('button');
+		pill.className = 'tag-filter-pill';
+		pill.dataset['tag'] = tag;
+		pill.textContent = `#${tag}`;
+		pill.addEventListener('click', () => {
+			toggleTag(tag, bar, simulations, onSelect);
+		});
+		bar.appendChild(pill);
+	}
 
-  return bar;
+	return bar;
 }
 
 /**
@@ -108,17 +108,17 @@ function createTagFilterBar(
  * @param onSelect - card click handler
  */
 function toggleTag(
-  tag: string,
-  bar: HTMLElement,
-  simulations: SimulationDefinition[],
-  onSelect: (id: string) => void
+	tag: string,
+	bar: HTMLElement,
+	simulations: SimulationDefinition[],
+	onSelect: (id: string) => void,
 ): void {
-  if (activeTags.has(tag)) {
-    activeTags.delete(tag);
-  } else {
-    activeTags.add(tag);
-  }
-  updateFilterUI(bar, simulations, onSelect);
+	if (activeTags.has(tag)) {
+		activeTags.delete(tag);
+	} else {
+		activeTags.add(tag);
+	}
+	updateFilterUI(bar, simulations, onSelect);
 }
 
 /**
@@ -129,13 +129,13 @@ function toggleTag(
  * @param onSelect - card click handler
  */
 function updateFilterUI(
-  bar: HTMLElement,
-  simulations: SimulationDefinition[],
-  onSelect: (id: string) => void
+	bar: HTMLElement,
+	simulations: SimulationDefinition[],
+	onSelect: (id: string) => void,
 ): void {
-  updatePillStyles(bar);
-  const filtered = filterSimulations(simulations);
-  rerenderGrid(bar, filtered, onSelect);
+	updatePillStyles(bar);
+	const filtered = filterSimulations(simulations);
+	rerenderGrid(bar, filtered, onSelect);
 }
 
 /**
@@ -143,16 +143,14 @@ function updateFilterUI(
  * @param bar - the filter bar containing pill buttons
  */
 function updatePillStyles(bar: HTMLElement): void {
-  const pills = bar.querySelectorAll('.tag-filter-pill');
-  for (const pill of pills) {
-    const btn = pill as HTMLElement;
-    const tag = btn.dataset['tag'];
-    const isAll = !tag;
-    const isActive = isAll
-      ? activeTags.size === 0
-      : activeTags.has(tag!);
-    btn.classList.toggle('tag-filter-pill--active', isActive);
-  }
+	const pills = bar.querySelectorAll('.tag-filter-pill');
+	for (const pill of pills) {
+		const btn = pill as HTMLElement;
+		const tag = btn.dataset['tag'];
+		const isAll = !tag;
+		const isActive = isAll ? activeTags.size === 0 : tag !== null && activeTags.has(tag);
+		btn.classList.toggle('tag-filter-pill--active', isActive);
+	}
 }
 
 /**
@@ -161,13 +159,9 @@ function updatePillStyles(bar: HTMLElement): void {
  * @param simulations - all simulation definitions
  * @returns filtered array of simulations
  */
-function filterSimulations(
-  simulations: SimulationDefinition[]
-): SimulationDefinition[] {
-  if (activeTags.size === 0) return simulations;
-  return simulations.filter((sim) =>
-    sim.tags.some((tag) => activeTags.has(tag))
-  );
+function filterSimulations(simulations: SimulationDefinition[]): SimulationDefinition[] {
+	if (activeTags.size === 0) return simulations;
+	return simulations.filter((sim) => sim.tags.some((tag) => activeTags.has(tag)));
 }
 
 /**
@@ -177,16 +171,16 @@ function filterSimulations(
  * @param onSelect - card click handler
  */
 function rerenderGrid(
-  bar: HTMLElement,
-  simulations: SimulationDefinition[],
-  onSelect: (id: string) => void
+	bar: HTMLElement,
+	simulations: SimulationDefinition[],
+	onSelect: (id: string) => void,
 ): void {
-  const grid = bar.parentElement?.querySelector('.menu-grid');
-  if (!grid) return;
-  grid.innerHTML = '';
-  for (const sim of simulations) {
-    grid.appendChild(createCard(sim, onSelect));
-  }
+	const grid = bar.parentElement?.querySelector('.menu-grid');
+	if (!grid) return;
+	grid.innerHTML = '';
+	for (const sim of simulations) {
+		grid.appendChild(createCard(sim, onSelect));
+	}
 }
 
 /**
@@ -195,35 +189,32 @@ function rerenderGrid(
  * @param onSelect - click handler
  * @returns the card DOM element
  */
-function createCard(
-  sim: SimulationDefinition,
-  onSelect: (id: string) => void
-): HTMLElement {
-  const card = document.createElement('div');
-  card.className = 'sim-card';
-  card.addEventListener('click', () => onSelect(sim.id));
+function createCard(sim: SimulationDefinition, onSelect: (id: string) => void): HTMLElement {
+	const card = document.createElement('div');
+	card.className = 'sim-card';
+	card.addEventListener('click', () => onSelect(sim.id));
 
-  const title = document.createElement('h2');
-  title.className = 'sim-card-title';
-  title.textContent = sim.title;
+	const title = document.createElement('h2');
+	title.className = 'sim-card-title';
+	title.textContent = sim.title;
 
-  const desc = document.createElement('p');
-  desc.className = 'sim-card-desc';
-  desc.textContent = sim.description;
+	const desc = document.createElement('p');
+	desc.className = 'sim-card-desc';
+	desc.textContent = sim.description;
 
-  const tags = document.createElement('div');
-  tags.className = 'sim-card-tags';
-  for (const tag of sim.tags) {
-    const span = document.createElement('span');
-    span.className = 'sim-card-tag';
-    span.textContent = `#${tag}`;
-    tags.appendChild(span);
-  }
+	const tags = document.createElement('div');
+	tags.className = 'sim-card-tags';
+	for (const tag of sim.tags) {
+		const span = document.createElement('span');
+		span.className = 'sim-card-tag';
+		span.textContent = `#${tag}`;
+		tags.appendChild(span);
+	}
 
-  card.appendChild(title);
-  card.appendChild(desc);
-  card.appendChild(tags);
-  return card;
+	card.appendChild(title);
+	card.appendChild(desc);
+	card.appendChild(tags);
+	return card;
 }
 
 /**
@@ -231,8 +222,8 @@ function createCard(
  * @returns style element with menu CSS
  */
 function createMenuStyles(): HTMLStyleElement {
-  const style = document.createElement('style');
-  style.textContent = `
+	const style = document.createElement('style');
+	style.textContent = `
     .menu-wrapper {
       max-width: 900px;
       margin: 0 auto;
@@ -348,5 +339,5 @@ function createMenuStyles(): HTMLStyleElement {
       }
     }
   `;
-  return style;
+	return style;
 }

@@ -3,27 +3,27 @@ import * as vec from '../math/vector';
 
 /** Callbacks for drag interactions */
 export interface InteractionCallbacks {
-  onGoalMoved: (position: Vec2) => void;
-  onObstacleMoved: (index: number, position: Vec2) => void;
+	onGoalMoved: (position: Vec2) => void;
+	onObstacleMoved: (index: number, position: Vec2) => void;
 }
 
 /** Obstacle shape for hit-testing */
 interface HitTestObstacle {
-  position: Vec2;
-  radius: number;
+	position: Vec2;
+	radius: number;
 }
 
 /** State provider for hit-testing */
 interface InteractionState {
-  goalPosition: Vec2;
-  obstacles: HitTestObstacle[];
+	goalPosition: Vec2;
+	obstacles: HitTestObstacle[];
 }
 
 /** Internal drag state */
 interface DragState {
-  active: boolean;
-  target: 'goal' | 'obstacle';
-  obstacleIndex: number;
+	active: boolean;
+	target: 'goal' | 'obstacle';
+	obstacleIndex: number;
 }
 
 /**
@@ -33,8 +33,8 @@ interface DragState {
  * @returns position in canvas coordinate space
  */
 function getCanvasPosition(canvas: HTMLCanvasElement, event: MouseEvent): Vec2 {
-  const rect = canvas.getBoundingClientRect();
-  return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+	const rect = canvas.getBoundingClientRect();
+	return { x: event.clientX - rect.left, y: event.clientY - rect.top };
 }
 
 /**
@@ -44,7 +44,7 @@ function getCanvasPosition(canvas: HTMLCanvasElement, event: MouseEvent): Vec2 {
  * @returns true if within 20px
  */
 function hitTestGoal(pos: Vec2, goalPos: Vec2): boolean {
-  return vec.distance(pos, goalPos) < 20;
+	return vec.distance(pos, goalPos) < 20;
 }
 
 /**
@@ -54,12 +54,12 @@ function hitTestGoal(pos: Vec2, goalPos: Vec2): boolean {
  * @returns index of hit obstacle, or -1
  */
 function hitTestObstacles(pos: Vec2, obstacles: HitTestObstacle[]): number {
-  for (let i = 0; i < obstacles.length; i++) {
-    if (vec.distance(pos, obstacles[i].position) < obstacles[i].radius + 15) {
-      return i;
-    }
-  }
-  return -1;
+	for (let i = 0; i < obstacles.length; i++) {
+		if (vec.distance(pos, obstacles[i].position) < obstacles[i].radius + 15) {
+			return i;
+		}
+	}
+	return -1;
 }
 
 /**
@@ -69,55 +69,55 @@ function hitTestObstacles(pos: Vec2, obstacles: HitTestObstacle[]): number {
  * @param callbacks - handlers called when goal or obstacle is dragged
  */
 export function initInteraction(
-  canvas: HTMLCanvasElement,
-  getState: () => InteractionState,
-  callbacks: InteractionCallbacks
+	canvas: HTMLCanvasElement,
+	getState: () => InteractionState,
+	callbacks: InteractionCallbacks,
 ): void {
-  const drag: DragState = { active: false, target: 'goal', obstacleIndex: -1 };
+	const drag: DragState = { active: false, target: 'goal', obstacleIndex: -1 };
 
-  canvas.addEventListener('mousedown', (e) => {
-    const pos = getCanvasPosition(canvas, e);
-    const state = getState();
+	canvas.addEventListener('mousedown', (e) => {
+		const pos = getCanvasPosition(canvas, e);
+		const state = getState();
 
-    if (hitTestGoal(pos, state.goalPosition)) {
-      drag.active = true;
-      drag.target = 'goal';
-      canvas.style.cursor = 'grabbing';
-      return;
-    }
+		if (hitTestGoal(pos, state.goalPosition)) {
+			drag.active = true;
+			drag.target = 'goal';
+			canvas.style.cursor = 'grabbing';
+			return;
+		}
 
-    const obsIndex = hitTestObstacles(pos, state.obstacles);
-    if (obsIndex >= 0) {
-      drag.active = true;
-      drag.target = 'obstacle';
-      drag.obstacleIndex = obsIndex;
-      canvas.style.cursor = 'grabbing';
-    }
-  });
+		const obsIndex = hitTestObstacles(pos, state.obstacles);
+		if (obsIndex >= 0) {
+			drag.active = true;
+			drag.target = 'obstacle';
+			drag.obstacleIndex = obsIndex;
+			canvas.style.cursor = 'grabbing';
+		}
+	});
 
-  canvas.addEventListener('mousemove', (e) => {
-    if (!drag.active) {
-      const pos = getCanvasPosition(canvas, e);
-      const state = getState();
-      const overGoal = hitTestGoal(pos, state.goalPosition);
-      const overObs = hitTestObstacles(pos, state.obstacles) >= 0;
-      canvas.style.cursor = overGoal || overObs ? 'grab' : 'default';
-      return;
-    }
+	canvas.addEventListener('mousemove', (e) => {
+		if (!drag.active) {
+			const pos = getCanvasPosition(canvas, e);
+			const state = getState();
+			const overGoal = hitTestGoal(pos, state.goalPosition);
+			const overObs = hitTestObstacles(pos, state.obstacles) >= 0;
+			canvas.style.cursor = overGoal || overObs ? 'grab' : 'default';
+			return;
+		}
 
-    const pos = getCanvasPosition(canvas, e);
-    if (drag.target === 'goal') {
-      callbacks.onGoalMoved(pos);
-    } else {
-      callbacks.onObstacleMoved(drag.obstacleIndex, pos);
-    }
-  });
+		const pos = getCanvasPosition(canvas, e);
+		if (drag.target === 'goal') {
+			callbacks.onGoalMoved(pos);
+		} else {
+			callbacks.onObstacleMoved(drag.obstacleIndex, pos);
+		}
+	});
 
-  const endDrag = () => {
-    drag.active = false;
-    canvas.style.cursor = 'default';
-  };
+	const endDrag = (): void => {
+		drag.active = false;
+		canvas.style.cursor = 'default';
+	};
 
-  canvas.addEventListener('mouseup', endDrag);
-  canvas.addEventListener('mouseleave', endDrag);
+	canvas.addEventListener('mouseup', endDrag);
+	canvas.addEventListener('mouseleave', endDrag);
 }

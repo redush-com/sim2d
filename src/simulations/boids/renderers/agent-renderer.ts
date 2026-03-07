@@ -10,20 +10,20 @@ import * as vec from '../../../math/vector';
  * @param color - base HSL color string
  */
 function renderTrail(ctx: CanvasRenderingContext2D, agent: BoidAgent, color: string): void {
-  const { trail } = agent;
-  if (trail.length < 2) return;
+	const { trail } = agent;
+	if (trail.length < 2) return;
 
-  for (let i = 1; i < trail.length; i++) {
-    const alpha = (i / trail.length) * 0.4;
-    const width = (i / trail.length) * 1.5;
+	for (let i = 1; i < trail.length; i++) {
+		const alpha = (i / trail.length) * 0.4;
+		const width = (i / trail.length) * 1.5;
 
-    ctx.beginPath();
-    ctx.moveTo(trail[i - 1].x, trail[i - 1].y);
-    ctx.lineTo(trail[i].x, trail[i].y);
-    ctx.strokeStyle = color.replace('60%)', `60%, ${alpha})`).replace('hsl(', 'hsla(');
-    ctx.lineWidth = width;
-    ctx.stroke();
-  }
+		ctx.beginPath();
+		ctx.moveTo(trail[i - 1].x, trail[i - 1].y);
+		ctx.lineTo(trail[i].x, trail[i].y);
+		ctx.strokeStyle = color.replace('60%)', `60%, ${alpha})`).replace('hsl(', 'hsla(');
+		ctx.lineWidth = width;
+		ctx.stroke();
+	}
 }
 
 /**
@@ -34,34 +34,34 @@ function renderTrail(ctx: CanvasRenderingContext2D, agent: BoidAgent, color: str
  * @param color - HSL color string for this agent
  */
 function renderAgentBody(ctx: CanvasRenderingContext2D, agent: BoidAgent, color: string): void {
-  const { position, velocity } = agent;
-  const speed = vec.magnitude(velocity);
-  const angle = speed > 0.1 ? Math.atan2(velocity.y, velocity.x) : 0;
+	const { position, velocity } = agent;
+	const speed = vec.magnitude(velocity);
+	const angle = speed > 0.1 ? Math.atan2(velocity.y, velocity.x) : 0;
 
-  const size = 6;
-  const halfBase = 4;
+	const size = 6;
+	const halfBase = 4;
 
-  // Glow
-  ctx.beginPath();
-  ctx.arc(position.x, position.y, 10, 0, Math.PI * 2);
-  ctx.fillStyle = color.replace('60%)', '60%, 0.1)').replace('hsl(', 'hsla(');
-  ctx.fill();
+	// Glow
+	ctx.beginPath();
+	ctx.arc(position.x, position.y, 10, 0, Math.PI * 2);
+	ctx.fillStyle = color.replace('60%)', '60%, 0.1)').replace('hsl(', 'hsla(');
+	ctx.fill();
 
-  // Directional triangle
-  const tipX = position.x + Math.cos(angle) * size;
-  const tipY = position.y + Math.sin(angle) * size;
-  const leftX = position.x + Math.cos(angle + 2.5) * halfBase;
-  const leftY = position.y + Math.sin(angle + 2.5) * halfBase;
-  const rightX = position.x + Math.cos(angle - 2.5) * halfBase;
-  const rightY = position.y + Math.sin(angle - 2.5) * halfBase;
+	// Directional triangle
+	const tipX = position.x + Math.cos(angle) * size;
+	const tipY = position.y + Math.sin(angle) * size;
+	const leftX = position.x + Math.cos(angle + 2.5) * halfBase;
+	const leftY = position.y + Math.sin(angle + 2.5) * halfBase;
+	const rightX = position.x + Math.cos(angle - 2.5) * halfBase;
+	const rightY = position.y + Math.sin(angle - 2.5) * halfBase;
 
-  ctx.beginPath();
-  ctx.moveTo(tipX, tipY);
-  ctx.lineTo(leftX, leftY);
-  ctx.lineTo(rightX, rightY);
-  ctx.closePath();
-  ctx.fillStyle = color;
-  ctx.fill();
+	ctx.beginPath();
+	ctx.moveTo(tipX, tipY);
+	ctx.lineTo(leftX, leftY);
+	ctx.lineTo(rightX, rightY);
+	ctx.closePath();
+	ctx.fillStyle = color;
+	ctx.fill();
 }
 
 /**
@@ -71,13 +71,13 @@ function renderAgentBody(ctx: CanvasRenderingContext2D, agent: BoidAgent, color:
  * @param agents - array of boid agents to render
  */
 export function renderAgents(ctx: CanvasRenderingContext2D, agents: BoidAgent[]): void {
-  for (const agent of agents) {
-    const color = AGENT_COLORS[agent.id % AGENT_COLORS.length];
-    renderTrail(ctx, agent, color);
-  }
+	for (const agent of agents) {
+		const color = AGENT_COLORS[agent.id % AGENT_COLORS.length];
+		renderTrail(ctx, agent, color);
+	}
 
-  for (const agent of agents) {
-    const color = AGENT_COLORS[agent.id % AGENT_COLORS.length];
-    renderAgentBody(ctx, agent, color);
-  }
+	for (const agent of agents) {
+		const color = AGENT_COLORS[agent.id % AGENT_COLORS.length];
+		renderAgentBody(ctx, agent, color);
+	}
 }

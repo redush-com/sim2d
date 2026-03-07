@@ -5,11 +5,11 @@
  * @returns the 2D rendering context
  */
 export function setupCanvas(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Failed to get 2D rendering context');
+	const ctx = canvas.getContext('2d');
+	if (!ctx) throw new Error('Failed to get 2D rendering context');
 
-  applyDpiScaling(canvas, ctx);
-  return ctx;
+	applyDpiScaling(canvas, ctx);
+	return ctx;
 }
 
 /**
@@ -17,13 +17,10 @@ export function setupCanvas(canvas: HTMLCanvasElement): CanvasRenderingContext2D
  * @param canvas - the canvas element
  * @param ctx - the 2D context
  */
-export function applyDpiScaling(
-  canvas: HTMLCanvasElement,
-  ctx: CanvasRenderingContext2D
-): void {
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = canvas.clientWidth * dpr;
-  canvas.height = canvas.clientHeight * dpr;
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.scale(dpr, dpr);
+export function applyDpiScaling(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D): void {
+	const dpr = window.devicePixelRatio || 1;
+	canvas.width = canvas.clientWidth * dpr;
+	canvas.height = canvas.clientHeight * dpr;
+	ctx.setTransform(1, 0, 0, 1, 0, 0);
+	ctx.scale(dpr, dpr);
 }

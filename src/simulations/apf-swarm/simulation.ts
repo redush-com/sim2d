@@ -13,10 +13,10 @@ import * as vec from '../../math/vector';
  * @returns array of spawn positions
  */
 function generateSpawnPositions(count: number): Vec2[] {
-  return Array.from({ length: count }, (_, i) => ({
-    x: 50 + Math.random() * 150,
-    y: (CANVAS_HEIGHT / (count + 1)) * (i + 1) + (Math.random() - 0.5) * 40,
-  }));
+	return Array.from({ length: count }, (_, i) => ({
+		x: 50 + Math.random() * 150,
+		y: (CANVAS_HEIGHT / (count + 1)) * (i + 1) + (Math.random() - 0.5) * 40,
+	}));
 }
 
 /**
@@ -25,13 +25,13 @@ function generateSpawnPositions(count: number): Vec2[] {
  * @returns initial simulation state
  */
 export function createSimulation(params: ApfParams): ApfSimulationState {
-  const positions = generateSpawnPositions(params.agentCount);
-  return {
-    agents: positions.map((pos, i) => createAgent(i, pos)),
-    obstacles: createDefaultObstacles(),
-    goalPosition: { x: CANVAS_WIDTH - 100, y: CANVAS_HEIGHT / 2 },
-    params,
-  };
+	const positions = generateSpawnPositions(params.agentCount);
+	return {
+		agents: positions.map((pos, i) => createAgent(i, pos)),
+		obstacles: createDefaultObstacles(),
+		goalPosition: { x: CANVAS_WIDTH - 100, y: CANVAS_HEIGHT / 2 },
+		params,
+	};
 }
 
 /**
@@ -42,26 +42,26 @@ export function createSimulation(params: ApfParams): ApfSimulationState {
  * @returns updated simulation state
  */
 export function tick(state: ApfSimulationState, dt: number): ApfSimulationState {
-  const { agents, obstacles, goalPosition, params } = state;
+	const { agents, obstacles, goalPosition, params } = state;
 
-  const updatedAgents = agents.map((agent) => {
-    const otherPositions = agents
-      .filter((other) => other.id !== agent.id)
-      .map((other) => other.position);
+	const updatedAgents = agents.map((agent) => {
+		const otherPositions = agents
+			.filter((other) => other.id !== agent.id)
+			.map((other) => other.position);
 
-    const force = totalForce(agent.position, goalPosition, obstacles, otherPositions, params);
-    let updated = updateAgent(agent, force, dt, params);
-    updated = enforceObstacleConstraints(updated, obstacles);
-    updated = updateStuckCounter(updated, params.stuckThreshold);
+		const force = totalForce(agent.position, goalPosition, obstacles, otherPositions, params);
+		let updated = updateAgent(agent, force, dt, params);
+		updated = enforceObstacleConstraints(updated, obstacles);
+		updated = updateStuckCounter(updated, params.stuckThreshold);
 
-    if (updated.stuckCounter >= params.stuckFrames) {
-      updated = applyPerturbation(updated, params.perturbStrength);
-    }
+		if (updated.stuckCounter >= params.stuckFrames) {
+			updated = applyPerturbation(updated, params.perturbStrength);
+		}
 
-    return updated;
-  });
+		return updated;
+	});
 
-  return { ...state, agents: updatedAgents };
+	return { ...state, agents: updatedAgents };
 }
 
 /**
@@ -72,27 +72,27 @@ export function tick(state: ApfSimulationState, dt: number): ApfSimulationState 
  * @returns agent with corrected position and velocity
  */
 function enforceObstacleConstraints(agent: ApfAgentState, obstacles: Obstacle[]): ApfAgentState {
-  let { position, velocity } = agent;
-  const margin = 2;
+	let { position, velocity } = agent;
+	const margin = 2;
 
-  for (const obs of obstacles) {
-    const diff = vec.sub(position, obs.position);
-    const dist = vec.magnitude(diff);
-    const minDist = obs.radius + margin;
+	for (const obs of obstacles) {
+		const diff = vec.sub(position, obs.position);
+		const dist = vec.magnitude(diff);
+		const minDist = obs.radius + margin;
 
-    if (dist < minDist) {
-      const normal = dist > 0.01 ? vec.normalize(diff) : vec.randomUnit();
-      position = vec.add(obs.position, vec.scale(normal, minDist));
+		if (dist < minDist) {
+			const normal = dist > 0.01 ? vec.normalize(diff) : vec.randomUnit();
+			position = vec.add(obs.position, vec.scale(normal, minDist));
 
-      const velDotNormal = velocity.x * normal.x + velocity.y * normal.y;
-      if (velDotNormal < 0) {
-        velocity = vec.sub(velocity, vec.scale(normal, velDotNormal));
-      }
-    }
-  }
+			const velDotNormal = velocity.x * normal.x + velocity.y * normal.y;
+			if (velDotNormal < 0) {
+				velocity = vec.sub(velocity, vec.scale(normal, velDotNormal));
+			}
+		}
+	}
 
-  if (position === agent.position) return agent;
-  return { ...agent, position, velocity };
+	if (position === agent.position) return agent;
+	return { ...agent, position, velocity };
 }
 
 /**
@@ -102,7 +102,7 @@ function enforceObstacleConstraints(agent: ApfAgentState, obstacles: Obstacle[])
  * @returns state with updated goal
  */
 export function setGoalPosition(state: ApfSimulationState, position: Vec2): ApfSimulationState {
-  return { ...state, goalPosition: position };
+	return { ...state, goalPosition: position };
 }
 
 /**
@@ -113,14 +113,12 @@ export function setGoalPosition(state: ApfSimulationState, position: Vec2): ApfS
  * @returns state with updated obstacle
  */
 export function setObstaclePosition(
-  state: ApfSimulationState,
-  index: number,
-  position: Vec2
+	state: ApfSimulationState,
+	index: number,
+	position: Vec2,
 ): ApfSimulationState {
-  const obstacles = state.obstacles.map((obs, i) =>
-    i === index ? { ...obs, position } : obs
-  );
-  return { ...state, obstacles };
+	const obstacles = state.obstacles.map((obs, i) => (i === index ? { ...obs, position } : obs));
+	return { ...state, obstacles };
 }
 
 /**
@@ -129,19 +127,16 @@ export function setObstaclePosition(
  * @param params - new parameters
  * @returns state with updated params (and possibly new agents)
  */
-export function updateParams(
-  state: ApfSimulationState,
-  params: ApfParams
-): ApfSimulationState {
-  if (params.agentCount !== state.agents.length) {
-    const positions = generateSpawnPositions(params.agentCount);
-    return {
-      ...state,
-      params,
-      agents: positions.map((pos, i) => createAgent(i, pos)),
-    };
-  }
-  return { ...state, params };
+export function updateParams(state: ApfSimulationState, params: ApfParams): ApfSimulationState {
+	if (params.agentCount !== state.agents.length) {
+		const positions = generateSpawnPositions(params.agentCount);
+		return {
+			...state,
+			params,
+			agents: positions.map((pos, i) => createAgent(i, pos)),
+		};
+	}
+	return { ...state, params };
 }
 
 /**
@@ -150,9 +145,9 @@ export function updateParams(
  * @returns state with reset agents
  */
 export function resetAgents(state: ApfSimulationState): ApfSimulationState {
-  const positions = generateSpawnPositions(state.params.agentCount);
-  return {
-    ...state,
-    agents: positions.map((pos, i) => createAgent(i, pos)),
-  };
+	const positions = generateSpawnPositions(state.params.agentCount);
+	return {
+		...state,
+		agents: positions.map((pos, i) => createAgent(i, pos)),
+	};
 }

@@ -2,10 +2,10 @@ import { supabase, isSupabaseConfigured } from '../auth/supabase-client';
 
 /** Row shape for the profiles table */
 export interface Profile {
-  id: string;
-  display_name: string;
-  avatar_url: string | null;
-  created_at: string;
+	id: string;
+	display_name: string;
+	avatar_url: string | null;
+	created_at: string;
 }
 
 /**
@@ -14,16 +14,12 @@ export interface Profile {
  * @returns the user profile, or null on error
  */
 export async function getProfile(userId: string): Promise<Profile | null> {
-  if (!isSupabaseConfigured()) return null;
+	if (!isSupabaseConfigured()) return null;
 
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single();
+	const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
 
-  if (error) return null;
-  return data as Profile;
+	if (error) return null;
+	return data as Profile;
 }
 
 /**
@@ -33,12 +29,12 @@ export async function getProfile(userId: string): Promise<Profile | null> {
  * @returns true if successful
  */
 export async function updateDisplayName(userId: string, displayName: string): Promise<boolean> {
-  if (!isSupabaseConfigured()) return false;
+	if (!isSupabaseConfigured()) return false;
 
-  const { error } = await supabase
-    .from('profiles')
-    .update({ display_name: displayName })
-    .eq('id', userId);
+	const { error } = await supabase
+		.from('profiles')
+		.update({ display_name: displayName })
+		.eq('id', userId);
 
-  return !error;
+	return !error;
 }

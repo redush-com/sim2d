@@ -2,36 +2,36 @@ import { authStore } from '../auth/auth-store';
 
 /** Configuration for a single slider control */
 export interface SliderDef {
-  key: string;
-  label: string;
-  min: number;
-  max: number;
-  step: number;
-  decimals: number;
-  section?: string;
+	key: string;
+	label: string;
+	min: number;
+	max: number;
+	step: number;
+	decimals: number;
+	section?: string;
 }
 
 /** Configuration for building a simulation control panel */
 export interface PanelConfig {
-  title: string;
-  description: string;
-  sliders: SliderDef[];
-  info?: string;
+	title: string;
+	description: string;
+	sliders: SliderDef[];
+	info?: string;
 }
 
 /** Callbacks for panel interactions */
 export interface PanelCallbacks {
-  onParamsChange: (params: Record<string, number>) => void;
-  onPause: () => void;
-  onReset: () => void;
-  onSave?: () => void;
+	onParamsChange: (params: Record<string, number>) => void;
+	onPause: () => void;
+	onReset: () => void;
+	onSave?: () => void;
 }
 
 /** Controls returned from the panel builder */
 export interface PanelControls {
-  pauseBtn: HTMLButtonElement;
-  saveBtn: HTMLButtonElement | null;
-  getParams: () => Record<string, number>;
+	pauseBtn: HTMLButtonElement;
+	saveBtn: HTMLButtonElement | null;
+	getParams: () => Record<string, number>;
 }
 
 /**
@@ -43,65 +43,65 @@ export interface PanelControls {
  * @returns panel controls including pause button reference
  */
 export function buildPanel(
-  panel: HTMLElement,
-  config: PanelConfig,
-  params: Record<string, number>,
-  callbacks: PanelCallbacks
+	panel: HTMLElement,
+	config: PanelConfig,
+	params: Record<string, number>,
+	callbacks: PanelCallbacks,
 ): PanelControls {
-  panel.innerHTML = '';
-  addPanelStyles(panel);
+	panel.innerHTML = '';
+	addPanelStyles(panel);
 
-  const currentParams = { ...params };
+	const currentParams = { ...params };
 
-  const title = document.createElement('h1');
-  title.className = 'panel-title';
-  title.textContent = config.title;
-  panel.appendChild(title);
+	const title = document.createElement('h1');
+	title.className = 'panel-title';
+	title.textContent = config.title;
+	panel.appendChild(title);
 
-  const subtitle = document.createElement('p');
-  subtitle.className = 'panel-subtitle';
-  subtitle.textContent = config.description;
-  panel.appendChild(subtitle);
+	const subtitle = document.createElement('p');
+	subtitle.className = 'panel-subtitle';
+	subtitle.textContent = config.description;
+	panel.appendChild(subtitle);
 
-  for (const slider of config.sliders) {
-    if (slider.section) {
-      const label = document.createElement('div');
-      label.className = 'panel-section-label';
-      label.textContent = slider.section;
-      panel.appendChild(label);
-    }
-    createSliderRow(panel, slider, currentParams, callbacks.onParamsChange);
-  }
+	for (const slider of config.sliders) {
+		if (slider.section) {
+			const label = document.createElement('div');
+			label.className = 'panel-section-label';
+			label.textContent = slider.section;
+			panel.appendChild(label);
+		}
+		createSliderRow(panel, slider, currentParams, callbacks.onParamsChange);
+	}
 
-  const btnRow = document.createElement('div');
-  btnRow.className = 'panel-btn-row';
+	const btnRow = document.createElement('div');
+	btnRow.className = 'panel-btn-row';
 
-  const pauseBtn = document.createElement('button');
-  pauseBtn.textContent = 'Pause';
-  pauseBtn.addEventListener('click', callbacks.onPause);
+	const pauseBtn = document.createElement('button');
+	pauseBtn.textContent = 'Pause';
+	pauseBtn.addEventListener('click', callbacks.onPause);
 
-  const resetBtn = document.createElement('button');
-  resetBtn.textContent = 'Reset';
-  resetBtn.addEventListener('click', callbacks.onReset);
+	const resetBtn = document.createElement('button');
+	resetBtn.textContent = 'Reset';
+	resetBtn.addEventListener('click', callbacks.onReset);
 
-  btnRow.appendChild(pauseBtn);
-  btnRow.appendChild(resetBtn);
-  panel.appendChild(btnRow);
+	btnRow.appendChild(pauseBtn);
+	btnRow.appendChild(resetBtn);
+	panel.appendChild(btnRow);
 
-  const saveBtn = createSaveButton(panel, callbacks);
+	const saveBtn = createSaveButton(panel, callbacks);
 
-  if (config.info) {
-    const info = document.createElement('div');
-    info.className = 'panel-info';
-    info.innerHTML = config.info;
-    panel.appendChild(info);
-  }
+	if (config.info) {
+		const info = document.createElement('div');
+		info.className = 'panel-info';
+		info.innerHTML = config.info;
+		panel.appendChild(info);
+	}
 
-  return {
-    pauseBtn,
-    saveBtn,
-    getParams: () => ({ ...currentParams }),
-  };
+	return {
+		pauseBtn,
+		saveBtn,
+		getParams: () => ({ ...currentParams }),
+	};
 }
 
 /**
@@ -111,19 +111,16 @@ export function buildPanel(
  * @param callbacks - panel callbacks; uses onSave when the button is clicked
  * @returns the save button element, or null if not rendered
  */
-function createSaveButton(
-  panel: HTMLElement,
-  callbacks: PanelCallbacks
-): HTMLButtonElement | null {
-  const user = authStore.getState().user;
-  if (!user || !callbacks.onSave) return null;
+function createSaveButton(panel: HTMLElement, callbacks: PanelCallbacks): HTMLButtonElement | null {
+	const user = authStore.getState().user;
+	if (!user || !callbacks.onSave) return null;
 
-  const btn = document.createElement('button');
-  btn.className = 'panel-save-btn';
-  btn.textContent = 'Save Configuration';
-  btn.addEventListener('click', () => callbacks.onSave?.());
-  panel.appendChild(btn);
-  return btn;
+	const btn = document.createElement('button');
+	btn.className = 'panel-save-btn';
+	btn.textContent = 'Save Configuration';
+	btn.addEventListener('click', () => callbacks.onSave?.());
+	panel.appendChild(btn);
+	return btn;
 }
 
 /**
@@ -134,39 +131,39 @@ function createSaveButton(
  * @param onChange - callback when value changes
  */
 function createSliderRow(
-  panel: HTMLElement,
-  config: SliderDef,
-  params: Record<string, number>,
-  onChange: (p: Record<string, number>) => void
+	panel: HTMLElement,
+	config: SliderDef,
+	params: Record<string, number>,
+	onChange: (p: Record<string, number>) => void,
 ): void {
-  const row = document.createElement('div');
-  row.className = 'panel-param-row';
+	const row = document.createElement('div');
+	row.className = 'panel-param-row';
 
-  const label = document.createElement('label');
-  label.textContent = config.label;
+	const label = document.createElement('label');
+	label.textContent = config.label;
 
-  const input = document.createElement('input');
-  input.type = 'range';
-  input.min = String(config.min);
-  input.max = String(config.max);
-  input.step = String(config.step);
-  input.value = String(params[config.key] ?? config.min);
+	const input = document.createElement('input');
+	input.type = 'range';
+	input.min = String(config.min);
+	input.max = String(config.max);
+	input.step = String(config.step);
+	input.value = String(params[config.key] ?? config.min);
 
-  const value = document.createElement('span');
-  value.className = 'panel-param-value';
-  value.textContent = Number(params[config.key] ?? config.min).toFixed(config.decimals);
+	const value = document.createElement('span');
+	value.className = 'panel-param-value';
+	value.textContent = Number(params[config.key] ?? config.min).toFixed(config.decimals);
 
-  input.addEventListener('input', () => {
-    const val = parseFloat(input.value);
-    params[config.key] = val;
-    value.textContent = val.toFixed(config.decimals);
-    onChange({ ...params });
-  });
+	input.addEventListener('input', () => {
+		const val = parseFloat(input.value);
+		params[config.key] = val;
+		value.textContent = val.toFixed(config.decimals);
+		onChange({ ...params });
+	});
 
-  row.appendChild(label);
-  row.appendChild(input);
-  row.appendChild(value);
-  panel.appendChild(row);
+	row.appendChild(label);
+	row.appendChild(input);
+	row.appendChild(value);
+	panel.appendChild(row);
 }
 
 /**
@@ -174,8 +171,8 @@ function createSliderRow(
  * @param panel - panel element to scope styles to
  */
 function addPanelStyles(panel: HTMLElement): void {
-  const style = document.createElement('style');
-  style.textContent = `
+	const style = document.createElement('style');
+	style.textContent = `
     .panel-title { font-size: 15px; font-weight: 600; color: #e0e0e8; margin-bottom: 4px; }
     .panel-subtitle { font-size: 11px; color: #666; margin-bottom: 12px; line-height: 1.4; }
     .panel-section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: #555; margin-top: 12px; margin-bottom: 6px; }
@@ -193,5 +190,5 @@ function addPanelStyles(panel: HTMLElement): void {
     .panel-info { margin-top: auto; padding-top: 16px; border-top: 1px solid #1a1a24; font-size: 10px; color: #444; line-height: 1.5; }
     .panel-info code { color: #5588ff; font-size: 10px; }
   `;
-  panel.appendChild(style);
+	panel.appendChild(style);
 }

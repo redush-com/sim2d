@@ -1,23 +1,50 @@
 /** A single draw command captured from user code */
 export interface DrawCommand {
-  method: string;
-  args: unknown[];
+	method: string;
+	args: unknown[];
 }
 
 /** Allowed Canvas2D methods that user code can call */
 const ALLOWED_METHODS = new Set([
-  'fillRect', 'strokeRect', 'clearRect',
-  'beginPath', 'closePath', 'moveTo', 'lineTo', 'arc', 'arcTo',
-  'quadraticCurveTo', 'bezierCurveTo', 'rect', 'ellipse',
-  'fill', 'stroke',
-  'save', 'restore', 'translate', 'rotate', 'scale', 'setTransform',
+	'fillRect',
+	'strokeRect',
+	'clearRect',
+	'beginPath',
+	'closePath',
+	'moveTo',
+	'lineTo',
+	'arc',
+	'arcTo',
+	'quadraticCurveTo',
+	'bezierCurveTo',
+	'rect',
+	'ellipse',
+	'fill',
+	'stroke',
+	'save',
+	'restore',
+	'translate',
+	'rotate',
+	'scale',
+	'setTransform',
 ]);
 
 /** Allowed Canvas2D properties that user code can set */
 const ALLOWED_PROPS = new Set([
-  'fillStyle', 'strokeStyle', 'lineWidth', 'lineCap', 'lineJoin',
-  'globalAlpha', 'globalCompositeOperation', 'font', 'textAlign', 'textBaseline',
-  'shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY',
+	'fillStyle',
+	'strokeStyle',
+	'lineWidth',
+	'lineCap',
+	'lineJoin',
+	'globalAlpha',
+	'globalCompositeOperation',
+	'font',
+	'textAlign',
+	'textBaseline',
+	'shadowColor',
+	'shadowBlur',
+	'shadowOffsetX',
+	'shadowOffsetY',
 ]);
 
 /**
@@ -26,26 +53,28 @@ const ALLOWED_PROPS = new Set([
  * @returns proxy context and the collected commands array
  */
 export function createDrawProxy(): { proxy: Record<string, unknown>; commands: DrawCommand[] } {
-  const commands: DrawCommand[] = [];
+	const commands: DrawCommand[] = [];
 
-  const proxy: Record<string, unknown> = {};
+	const proxy: Record<string, unknown> = {};
 
-  for (const method of ALLOWED_METHODS) {
-    proxy[method] = (...args: unknown[]) => {
-      commands.push({ method, args });
-    };
-  }
+	for (const method of ALLOWED_METHODS) {
+		proxy[method] = (...args: unknown[]) => {
+			commands.push({ method, args });
+		};
+	}
 
-  for (const prop of ALLOWED_PROPS) {
-    Object.defineProperty(proxy, prop, {
-      set(value: unknown) {
-        commands.push({ method: `set:${prop}`, args: [value] });
-      },
-      get() { return undefined; },
-    });
-  }
+	for (const prop of ALLOWED_PROPS) {
+		Object.defineProperty(proxy, prop, {
+			set(value: unknown) {
+				commands.push({ method: `set:${prop}`, args: [value] });
+			},
+			get() {
+				return undefined;
+			},
+		});
+	}
 
-  return { proxy, commands };
+	return { proxy, commands };
 }
 
 /**
@@ -54,15 +83,15 @@ export function createDrawProxy(): { proxy: Record<string, unknown>; commands: D
  * @param commands - array of draw commands to replay
  */
 export function replayCommands(ctx: CanvasRenderingContext2D, commands: DrawCommand[]): void {
-  for (const cmd of commands) {
-    if (cmd.method.startsWith('set:')) {
-      const prop = cmd.method.slice(4);
-      (ctx as unknown as Record<string, unknown>)[prop] = cmd.args[0];
-    } else {
-      const fn = (ctx as unknown as Record<string, (...a: unknown[]) => void>)[cmd.method];
-      if (typeof fn === 'function') {
-        fn.apply(ctx, cmd.args);
-      }
-    }
-  }
+	for (const cmd of commands) {
+		if (cmd.method.startsWith('set:')) {
+			const prop = cmd.method.slice(4);
+			(ctx as unknown as Record<string, unknown>)[prop] = cmd.args[0];
+		} else {
+			const fn = (ctx as unknown as Record<string, (...a: unknown[]) => void>)[cmd.method];
+			if (typeof fn === 'function') {
+				fn.apply(ctx, cmd.args);
+			}
+		}
+	}
 }
