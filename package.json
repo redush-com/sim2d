@@ -17,7 +17,11 @@
 		"arch": "depcruise src --config .dependency-cruiser.cjs",
 		"check": "npm run typecheck && npm run lint && npm run format:check && npm run arch",
 		"e2e": "playwright test",
-		"e2e:ui": "playwright test --ui"
+		"e2e:ui": "playwright test --ui",
+		"migrate:up": "node-pg-migrate up -m migrations -j sql",
+		"migrate:down": "node-pg-migrate down -m migrations -j sql",
+		"migrate:create": "node-pg-migrate create -m migrations -j sql",
+		"migrate:dry": "node-pg-migrate up -m migrations -j sql --dry-run"
 	},
 	"lint-staged": {
 		"*.{ts,js}": [
@@ -47,6 +51,8 @@
 		"eslint": "^10.0.3",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.3.2",
+		"node-pg-migrate": "^8.0.4",
+		"pg": "^8.20.0",
 		"prettier": "^3.8.1",
 		"typescript": "^5.9.3",
 		"typescript-eslint": "^8.56.1",
