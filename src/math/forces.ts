@@ -1,16 +1,25 @@
 import type { Vec2, Obstacle, SimulationParams } from '../types';
 import * as vec from './vector';
 
+/** Maximum attractive force magnitude to prevent overpowering repulsion */
+const MAX_ATTRACTIVE_FORCE = 50;
+
 /**
  * Computes the attractive force pulling an agent toward the goal.
- * Uses a linear attractive field: F = kAtt * (goal - agent).
+ * Uses a conic field: linear when close, capped magnitude when far.
+ * This prevents the attractive force from overpowering obstacle repulsion.
  * @param agentPos - current agent position
  * @param goalPos - goal position
  * @param kAtt - attractive force gain
  * @returns attractive force vector
  */
 export function attractiveForce(agentPos: Vec2, goalPos: Vec2, kAtt: number): Vec2 {
-  return vec.scale(vec.sub(goalPos, agentPos), kAtt);
+  const diff = vec.sub(goalPos, agentPos);
+  const dist = vec.magnitude(diff);
+  if (dist < 1e-6) return vec.ZERO;
+
+  const forceMag = Math.min(kAtt * dist, MAX_ATTRACTIVE_FORCE);
+  return vec.scale(vec.normalize(diff), forceMag);
 }
 
 /**
@@ -29,12 +38,13 @@ export function obstacleRepulsiveForce(
   d0: number
 ): Vec2 {
   const diff = vec.sub(agentPos, obstacle.position);
-  const dist = vec.magnitude(diff) - obstacle.radius;
+  const rawDist = vec.magnitude(diff) - obstacle.radius;
 
-  if (dist > d0) return vec.ZERO;
+  if (rawDist > d0) return vec.ZERO;
 
-  const d = Math.max(dist, 0.1);
-  const repMagnitude = kRep * (1 / d - 1 / d0) * (1 / (d * d));
+  const d = Math.max(rawDist, 0.5);
+  const ratio = (d0 - d) / d;
+  const repMagnitude = kRep * ratio * ratio;
   return vec.scale(vec.normalize(diff), repMagnitude);
 }
 
@@ -58,8 +68,9 @@ export function interRobotRepulsiveForce(
 
   if (dist > dRobot) return vec.ZERO;
 
-  const d = Math.max(dist, 0.1);
-  const repMagnitude = kRepRobot * (1 / d - 1 / dRobot) * (1 / (d * d));
+  const d = Math.max(dist, 0.5);
+  const ratio = (dRobot - d) / d;
+  const repMagnitude = kRepRobot * ratio * ratio;
   return vec.scale(vec.normalize(diff), repMagnitude);
 }
 

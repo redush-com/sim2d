@@ -3,14 +3,14 @@ import type { SimulationParams } from './types';
 /** Default simulation parameters tuned for visually appealing swarm behavior */
 export const DEFAULT_PARAMS: SimulationParams = {
   kAtt: 1.0,
-  kRep: 100.0,
-  kRepRobot: 50.0,
-  d0: 80,
-  dRobot: 50,
+  kRep: 15.0,
+  kRepRobot: 8.0,
+  d0: 100,
+  dRobot: 60,
   agentCount: 10,
   maxSpeed: 200,
   trailLength: 100,
-  perturbStrength: 50,
+  perturbStrength: 80,
   stuckThreshold: 0.5,
   stuckFrames: 60,
 };

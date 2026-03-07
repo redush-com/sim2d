@@ -1,9 +1,10 @@
-import type { Vec2, SimulationParams, SimulationState } from '../types';
+import type { Vec2, AgentState, Obstacle, SimulationParams, SimulationState } from '../types';
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../config';
 import { createAgent, updateAgent } from './agent';
 import { createDefaultObstacles } from './obstacle';
 import { totalForce } from '../math/forces';
 import { updateStuckCounter, applyPerturbation } from './local-minima';
+import * as vec from '../math/vector';
 
 /**
  * Generates random spawn positions for agents on the left side of the canvas.
@@ -49,6 +50,7 @@ export function tick(state: SimulationState, dt: number): SimulationState {
 
     const force = totalForce(agent.position, goalPosition, obstacles, otherPositions, params);
     let updated = updateAgent(agent, force, dt, params);
+    updated = enforceObstacleConstraints(updated, obstacles);
     updated = updateStuckCounter(updated, params.stuckThreshold);
 
     if (updated.stuckCounter >= params.stuckFrames) {
@@ -59,6 +61,38 @@ export function tick(state: SimulationState, dt: number): SimulationState {
   });
 
   return { ...state, agents: updatedAgents };
+}
+
+/**
+ * Enforces hard collision constraints: pushes an agent outside any obstacle
+ * it has penetrated and zeros the velocity component pointing into the obstacle.
+ * This prevents momentum from carrying agents through obstacles.
+ * @param agent - agent to constrain
+ * @param obstacles - array of obstacles
+ * @returns agent with corrected position and velocity
+ */
+function enforceObstacleConstraints(agent: AgentState, obstacles: Obstacle[]): AgentState {
+  let { position, velocity } = agent;
+  const margin = 2;
+
+  for (const obs of obstacles) {
+    const diff = vec.sub(position, obs.position);
+    const dist = vec.magnitude(diff);
+    const minDist = obs.radius + margin;
+
+    if (dist < minDist) {
+      const normal = dist > 0.01 ? vec.normalize(diff) : vec.randomUnit();
+      position = vec.add(obs.position, vec.scale(normal, minDist));
+
+      const velDotNormal = velocity.x * normal.x + velocity.y * normal.y;
+      if (velDotNormal < 0) {
+        velocity = vec.sub(velocity, vec.scale(normal, velDotNormal));
+      }
+    }
+  }
+
+  if (position === agent.position) return agent;
+  return { ...agent, position, velocity };
 }
 
 /**

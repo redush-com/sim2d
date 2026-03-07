@@ -17,12 +17,15 @@ export function createAgent(id: number, position: Vec2): AgentState {
   };
 }
 
+/** Smoothing factor: 0 = instant response, 1 = no response. Controls inertia. */
+const VELOCITY_SMOOTHING = 0.85;
+
 /**
- * Updates an agent's state by applying a force over a time step.
- * Force is treated as acceleration (unit mass), velocity is clamped to maxSpeed,
- * and the trail is maintained as a bounded ring buffer.
+ * Updates an agent's state using the APF force as a desired velocity direction.
+ * Unlike acceleration-based updates, this prevents momentum from carrying agents
+ * through obstacles. Smoothing adds slight inertia for natural-looking movement.
  * @param agent - current agent state
- * @param force - net force vector to apply
+ * @param force - net force vector (treated as desired velocity)
  * @param dt - time step in seconds
  * @param params - simulation parameters for maxSpeed and trailLength
  * @returns updated agent state
@@ -33,9 +36,14 @@ export function updateAgent(
   dt: number,
   params: SimulationParams
 ): AgentState {
-  const newVelocity = vec.clampMagnitude(
-    vec.add(agent.velocity, vec.scale(force, dt)),
-    params.maxSpeed
+  const forceMag = vec.magnitude(force);
+  const speed = forceMag > 0.01 ? Math.min(forceMag, 1) * params.maxSpeed : 0;
+  const desiredVelocity = forceMag > 0.01
+    ? vec.scale(vec.normalize(force), speed)
+    : vec.ZERO;
+  const newVelocity = vec.add(
+    vec.scale(agent.velocity, VELOCITY_SMOOTHING),
+    vec.scale(desiredVelocity, 1 - VELOCITY_SMOOTHING)
   );
   const newPosition = vec.add(agent.position, vec.scale(newVelocity, dt));
 
