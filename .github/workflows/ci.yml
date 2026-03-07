@@ -107,9 +107,24 @@ jobs:
           retention-days: 7
 
   migrate-check:
-    name: Migration Dry Run
+    name: Migration Check
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sim2d_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sim2d_test
     steps:
       - uses: actions/checkout@v4
 
@@ -120,10 +135,17 @@ jobs:
 
       - run: npm ci
 
-      - name: Dry run pending migrations
-        run: npm run migrate:dry
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      - name: Create auth schema stubs
+        run: psql "$DATABASE_URL" -f .github/sql/auth-stubs.sql
+
+      - name: Migrate up
+        run: npm run migrate:up
+
+      - name: Migrate down
+        run: npm run migrate:down
+
+      - name: Migrate up again (idempotency)
+        run: npm run migrate:up
 
   migrate:
     name: Run Migrations
