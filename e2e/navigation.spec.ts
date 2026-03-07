@@ -24,12 +24,12 @@ test.describe('Navigation', () => {
 		await expect(page.locator('.login-wrapper')).toBeVisible();
 	});
 
-	test('clicking the logo navigates to home', async ({ page }) => {
+	test('clicking the back button navigates to home', async ({ page }) => {
 		await page.goto('/sim/boids');
 		await expect(page.locator('.sim-layout')).toBeVisible();
 
-		const logo = page.locator('.navbar-logo');
-		await logo.click();
+		const backBtn = page.locator('.sim-back-btn');
+		await backBtn.click();
 		await expect(page.locator('.menu-title')).toHaveText('sim2d');
 	});
 
