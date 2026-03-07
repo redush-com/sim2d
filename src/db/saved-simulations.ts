@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../auth/supabase-client';
+import { authStore } from '../auth/auth-store';
 
 /** Row shape for the saved_simulations table */
 export interface SavedSimulation {
@@ -49,9 +50,13 @@ export async function saveSimulation(sim: {
 }): Promise<SavedSimulation | null> {
 	if (!isSupabaseConfigured()) return null;
 
+	const user = authStore.getState().user;
+	if (!user) return null;
+
 	const { data, error } = await supabase
 		.from('saved_simulations')
 		.insert({
+			user_id: user.id,
 			title: sim.title,
 			description: sim.description || '',
 			sim_type: sim.sim_type,
