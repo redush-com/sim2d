@@ -15,5 +15,5 @@ jobs:
 
       - name: Push to personal repo
         run: |
-          git remote add personal https://x-access-token:${{ secrets.PERSONAL_REPO_TOKEN }}@github.com/brnikita/swarm-intelligence.git
+          git remote add personal https://x-access-token:${{ secrets.PERSONAL_REPO_TOKEN }}@github.com/brnikita/sim2d.git
           git push personal main --force

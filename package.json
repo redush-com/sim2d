@@ -9,13 +9,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/brnikita/swarm-intelligence.git"
+    "url": "git+https://github.com/brnikita/sim2d.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/brnikita/swarm-intelligence/issues"
+    "url": "https://github.com/brnikita/sim2d/issues"
   },
   "homepage": "https://sim2d.com",
   "description": "Interactive 2D swarm intelligence simulator",
