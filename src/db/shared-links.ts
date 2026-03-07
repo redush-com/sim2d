@@ -63,5 +63,5 @@ export async function resolveShareToken(token: string): Promise<SavedSimulation 
  * @returns full URL with hash route
  */
 export function buildShareUrl(token: string): string {
-  return `${window.location.origin}${window.location.pathname}#/shared/${token}`;
+  return `${window.location.origin}/shared/${token}`;
 }

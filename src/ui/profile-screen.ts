@@ -2,6 +2,7 @@ import { authStore } from '../auth/auth-store';
 import { signOut } from '../auth/auth-service';
 import { getUserSimulations, deleteSimulation, type SavedSimulation } from '../db/saved-simulations';
 import { createShareLink, buildShareUrl } from '../db/shared-links';
+import { navigateTo } from '../router';
 
 /**
  * Renders the user profile screen with saved simulations list.
@@ -92,9 +93,9 @@ function createSimCard(sim: SavedSimulation, listContainer: HTMLElement): HTMLEl
   loadBtn.textContent = 'Load';
   loadBtn.addEventListener('click', () => {
     if (sim.sim_type === 'custom') {
-      window.location.hash = `#/editor/${sim.id}`;
+      navigateTo(`/editor/${sim.id}`);
     } else {
-      window.location.hash = `#/sim/${sim.builtin_id}`;
+      navigateTo(`/sim/${sim.builtin_id}`);
     }
   });
 
@@ -158,7 +159,7 @@ function buildHeader(user: { email?: string; user_metadata?: Record<string, unkn
   signOutBtn.textContent = 'Sign Out';
   signOutBtn.addEventListener('click', async () => {
     await signOut();
-    window.location.hash = '#/';
+    navigateTo('/');
   });
 
   header.appendChild(avatar);

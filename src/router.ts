@@ -12,26 +12,34 @@ interface Route {
 }
 
 /**
- * Hash-based SPA router managing navigation between screens.
+ * Navigates to a path using the History API without a full page reload.
+ * @param path - the URL path to navigate to (e.g. '/sim/boids')
+ */
+export function navigateTo(path: string): void {
+  history.pushState(null, '', path);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+}
+
+/**
+ * SPA router using the History API for clean URLs.
  * Handles simulation lifecycle and auth-guarded routes.
  */
 export class Router {
   private container: HTMLElement;
   private currentSim: SimulationInstance | null = null;
-  private unsubAuth: (() => void) | null = null;
 
   /**
    * @param container - root DOM element to render into
    */
   constructor(container: HTMLElement) {
     this.container = container;
-    window.addEventListener('hashchange', () => this.handleRoute());
-    this.unsubAuth = authStore.subscribe(() => this.updateNavbar());
+    window.addEventListener('popstate', () => this.handleRoute());
+    authStore.subscribe(() => this.updateNavbar());
   }
 
-  /** Parses the current hash and navigates to the matching screen */
+  /** Parses the current URL path and navigates to the matching screen */
   handleRoute(): void {
-    const route = this.parseHash();
+    const route = this.parsePath();
 
     this.destroyCurrentSim();
 
@@ -60,12 +68,12 @@ export class Router {
   }
 
   /**
-   * Parses window.location.hash into a Route object.
+   * Parses window.location.pathname into a Route object.
    * @returns parsed route with name and params
    */
-  private parseHash(): Route {
-    const hash = window.location.hash.replace('#/', '').replace('#', '');
-    const parts = hash.split('/').filter(Boolean);
+  private parsePath(): Route {
+    const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
+    const parts = path.split('/').filter(Boolean);
 
     if (parts[0] === 'sim' && parts[1]) return { name: 'sim', params: { id: parts[1] } };
     if (parts[0] === 'editor') return { name: 'editor', params: { id: parts[1] || '' } };
@@ -81,7 +89,7 @@ export class Router {
    */
   private requireAuth(): boolean {
     if (authStore.getState().user) return true;
-    window.location.hash = '#/login';
+    navigateTo('/login');
     return false;
   }
 
@@ -105,7 +113,7 @@ export class Router {
     content.className = 'app-content';
     this.container.appendChild(content);
     renderMainMenu(content, getAll(), (id) => {
-      window.location.hash = `#/sim/${id}`;
+      navigateTo(`/sim/${id}`);
     });
   }
 
@@ -137,7 +145,7 @@ export class Router {
   private showSimulation(simId: string, savedConfigId?: string): void {
     const definition = getById(simId);
     if (!definition) {
-      window.location.hash = '#/';
+      navigateTo('/');
       return;
     }
 
@@ -155,7 +163,7 @@ export class Router {
   private showShared(token: string): void {
     // Phase 5: resolve token from Supabase and load simulation
     // For now, redirect to home
-    window.location.hash = '#/';
+    navigateTo('/');
   }
 
   /** Stops and destroys the current simulation if running */
@@ -204,8 +212,9 @@ export class Router {
 
     const logo = document.createElement('a');
     logo.className = 'navbar-logo';
+    logo.href = '/';
     logo.textContent = 'Swarm Intelligence';
-    logo.addEventListener('click', (e) => { e.preventDefault(); window.location.hash = '#/'; });
+    logo.addEventListener('click', (e) => { e.preventDefault(); navigateTo('/'); });
     nav.appendChild(logo);
 
     const authArea = document.createElement('div');
@@ -222,13 +231,12 @@ export class Router {
    */
   private createAuthButton(): HTMLElement {
     const { user } = authStore.getState();
-    const wrapper = document.createDocumentFragment();
 
     if (user) {
       const profileBtn = document.createElement('button');
       profileBtn.className = 'navbar-btn';
       profileBtn.textContent = 'My Simulations';
-      profileBtn.addEventListener('click', () => { window.location.hash = '#/profile'; });
+      profileBtn.addEventListener('click', () => { navigateTo('/profile'); });
 
       const avatar = document.createElement('img');
       avatar.className = 'navbar-avatar';
@@ -246,7 +254,7 @@ export class Router {
     const loginBtn = document.createElement('button');
     loginBtn.className = 'navbar-btn';
     loginBtn.textContent = 'Sign In';
-    loginBtn.addEventListener('click', () => { window.location.hash = '#/login'; });
+    loginBtn.addEventListener('click', () => { navigateTo('/login'); });
     return loginBtn;
   }
 
@@ -283,7 +291,7 @@ export class Router {
     const backBtn = document.createElement('button');
     backBtn.className = 'sim-back-btn';
     backBtn.textContent = 'Back';
-    backBtn.addEventListener('click', () => { window.location.hash = '#/'; });
+    backBtn.addEventListener('click', () => { navigateTo('/'); });
     canvasArea.appendChild(backBtn);
 
     const canvas = document.createElement('canvas');

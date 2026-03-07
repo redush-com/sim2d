@@ -37,7 +37,7 @@ export function initAuth(): void {
 export async function signInWithProvider(provider: Provider): Promise<void> {
   await supabase.auth.signInWithOAuth({
     provider,
-    options: { redirectTo: window.location.origin + window.location.pathname + '#/' },
+    options: { redirectTo: window.location.origin + '/' },
   });
 }
 
