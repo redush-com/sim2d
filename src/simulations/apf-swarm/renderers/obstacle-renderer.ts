@@ -1,4 +1,4 @@
-import type { Obstacle } from '../../../types';
+import type { Obstacle } from '../types';
 
 /**
  * Renders all obstacles as solid circles with translucent influence-zone halos.
@@ -20,7 +20,6 @@ export function renderObstacles(
 
 /**
  * Draws a smooth radial gradient representing the repulsive influence field.
- * The gradient fades from visible near the obstacle to transparent at d0 boundary.
  * @param ctx - canvas 2D rendering context
  * @param obs - obstacle to render gradient for
  * @param d0 - influence distance threshold

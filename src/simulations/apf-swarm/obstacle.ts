@@ -1,4 +1,5 @@
-import type { Vec2, Obstacle } from '../../types';
+import type { Vec2 } from '../../types';
+import type { Obstacle } from './types';
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from './config';
 
 /**

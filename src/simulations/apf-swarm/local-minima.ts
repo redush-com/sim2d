@@ -1,4 +1,4 @@
-import type { AgentState } from '../../types';
+import type { ApfAgentState } from './types';
 import * as vec from '../../math/vector';
 
 /**
@@ -7,7 +7,7 @@ import * as vec from '../../math/vector';
  * @param threshold - velocity magnitude below which the agent is considered stuck
  * @returns true if agent velocity is below threshold
  */
-export function isStuck(agent: AgentState, threshold: number): boolean {
+export function isStuck(agent: ApfAgentState, threshold: number): boolean {
   return vec.magnitude(agent.velocity) < threshold;
 }
 
@@ -17,7 +17,7 @@ export function isStuck(agent: AgentState, threshold: number): boolean {
  * @param threshold - velocity threshold for stuck detection
  * @returns agent with updated stuckCounter
  */
-export function updateStuckCounter(agent: AgentState, threshold: number): AgentState {
+export function updateStuckCounter(agent: ApfAgentState, threshold: number): ApfAgentState {
   return {
     ...agent,
     stuckCounter: isStuck(agent, threshold) ? agent.stuckCounter + 1 : 0,
@@ -31,7 +31,7 @@ export function updateStuckCounter(agent: AgentState, threshold: number): AgentS
  * @param strength - magnitude of the random perturbation
  * @returns agent with perturbed velocity and reset counter
  */
-export function applyPerturbation(agent: AgentState, strength: number): AgentState {
+export function applyPerturbation(agent: ApfAgentState, strength: number): ApfAgentState {
   const perturbation = vec.scale(vec.randomUnit(), strength);
   return {
     ...agent,

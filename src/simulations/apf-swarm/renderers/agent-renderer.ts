@@ -1,4 +1,4 @@
-import type { AgentState } from '../../../types';
+import type { ApfAgentState } from '../types';
 import { AGENT_COLORS } from '../config';
 import * as vec from '../../../math/vector';
 
@@ -9,7 +9,7 @@ import * as vec from '../../../math/vector';
  * @param agent - agent whose trail to render
  * @param color - base color string (HSL format)
  */
-function renderTrail(ctx: CanvasRenderingContext2D, agent: AgentState, color: string): void {
+function renderTrail(ctx: CanvasRenderingContext2D, agent: ApfAgentState, color: string): void {
   const { trail } = agent;
   if (trail.length < 2) return;
 
@@ -32,7 +32,7 @@ function renderTrail(ctx: CanvasRenderingContext2D, agent: AgentState, color: st
  * @param agent - agent to render
  * @param color - agent color string
  */
-function renderAgentBody(ctx: CanvasRenderingContext2D, agent: AgentState, color: string): void {
+function renderAgentBody(ctx: CanvasRenderingContext2D, agent: ApfAgentState, color: string): void {
   const { position, velocity } = agent;
 
   // Glow
@@ -65,7 +65,7 @@ function renderAgentBody(ctx: CanvasRenderingContext2D, agent: AgentState, color
  * @param ctx - canvas 2D rendering context
  * @param agents - array of agent states to render
  */
-export function renderAgents(ctx: CanvasRenderingContext2D, agents: AgentState[]): void {
+export function renderAgents(ctx: CanvasRenderingContext2D, agents: ApfAgentState[]): void {
   for (const agent of agents) {
     const color = AGENT_COLORS[agent.id % AGENT_COLORS.length];
     renderTrail(ctx, agent, color);

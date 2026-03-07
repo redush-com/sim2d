@@ -1,4 +1,5 @@
-import type { Vec2, AgentState, Obstacle, SimulationParams, SimulationState } from '../../types';
+import type { Vec2 } from '../../types';
+import type { ApfAgentState, Obstacle, ApfParams, ApfSimulationState } from './types';
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from './config';
 import { createAgent, updateAgent } from './agent';
 import { createDefaultObstacles } from './obstacle';
@@ -23,7 +24,7 @@ function generateSpawnPositions(count: number): Vec2[] {
  * @param params - simulation parameters
  * @returns initial simulation state
  */
-export function createSimulation(params: SimulationParams): SimulationState {
+export function createSimulation(params: ApfParams): ApfSimulationState {
   const positions = generateSpawnPositions(params.agentCount);
   return {
     agents: positions.map((pos, i) => createAgent(i, pos)),
@@ -40,7 +41,7 @@ export function createSimulation(params: SimulationParams): SimulationState {
  * @param dt - time step in seconds
  * @returns updated simulation state
  */
-export function tick(state: SimulationState, dt: number): SimulationState {
+export function tick(state: ApfSimulationState, dt: number): ApfSimulationState {
   const { agents, obstacles, goalPosition, params } = state;
 
   const updatedAgents = agents.map((agent) => {
@@ -66,12 +67,11 @@ export function tick(state: SimulationState, dt: number): SimulationState {
 /**
  * Enforces hard collision constraints: pushes an agent outside any obstacle
  * it has penetrated and zeros the velocity component pointing into the obstacle.
- * This prevents momentum from carrying agents through obstacles.
  * @param agent - agent to constrain
  * @param obstacles - array of obstacles
  * @returns agent with corrected position and velocity
  */
-function enforceObstacleConstraints(agent: AgentState, obstacles: Obstacle[]): AgentState {
+function enforceObstacleConstraints(agent: ApfAgentState, obstacles: Obstacle[]): ApfAgentState {
   let { position, velocity } = agent;
   const margin = 2;
 
@@ -101,7 +101,7 @@ function enforceObstacleConstraints(agent: AgentState, obstacles: Obstacle[]): A
  * @param position - new goal position
  * @returns state with updated goal
  */
-export function setGoalPosition(state: SimulationState, position: Vec2): SimulationState {
+export function setGoalPosition(state: ApfSimulationState, position: Vec2): ApfSimulationState {
   return { ...state, goalPosition: position };
 }
 
@@ -113,10 +113,10 @@ export function setGoalPosition(state: SimulationState, position: Vec2): Simulat
  * @returns state with updated obstacle
  */
 export function setObstaclePosition(
-  state: SimulationState,
+  state: ApfSimulationState,
   index: number,
   position: Vec2
-): SimulationState {
+): ApfSimulationState {
   const obstacles = state.obstacles.map((obs, i) =>
     i === index ? { ...obs, position } : obs
   );
@@ -130,9 +130,9 @@ export function setObstaclePosition(
  * @returns state with updated params (and possibly new agents)
  */
 export function updateParams(
-  state: SimulationState,
-  params: SimulationParams
-): SimulationState {
+  state: ApfSimulationState,
+  params: ApfParams
+): ApfSimulationState {
   if (params.agentCount !== state.agents.length) {
     const positions = generateSpawnPositions(params.agentCount);
     return {
@@ -149,7 +149,7 @@ export function updateParams(
  * @param state - current state
  * @returns state with reset agents
  */
-export function resetAgents(state: SimulationState): SimulationState {
+export function resetAgents(state: ApfSimulationState): ApfSimulationState {
   const positions = generateSpawnPositions(state.params.agentCount);
   return {
     ...state,

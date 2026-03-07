@@ -1,13 +1,14 @@
-import type { Vec2, AgentState, SimulationParams } from '../../types';
+import type { Vec2 } from '../../types';
+import type { ApfAgentState, ApfParams } from './types';
 import * as vec from '../../math/vector';
 
 /**
  * Creates a new agent at the given position with zero velocity.
  * @param id - unique agent identifier
  * @param position - initial spawn position
- * @returns a fresh AgentState
+ * @returns a fresh ApfAgentState
  */
-export function createAgent(id: number, position: Vec2): AgentState {
+export function createAgent(id: number, position: Vec2): ApfAgentState {
   return {
     id,
     position,
@@ -31,11 +32,11 @@ const VELOCITY_SMOOTHING = 0.85;
  * @returns updated agent state
  */
 export function updateAgent(
-  agent: AgentState,
+  agent: ApfAgentState,
   force: Vec2,
   dt: number,
-  params: SimulationParams
-): AgentState {
+  params: ApfParams
+): ApfAgentState {
   const forceMag = vec.magnitude(force);
   const speed = forceMag > 0.01 ? Math.min(forceMag, 1) * params.maxSpeed : 0;
   const desiredVelocity = forceMag > 0.01

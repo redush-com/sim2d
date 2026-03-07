@@ -1,5 +1,6 @@
 import { register } from '../registry';
 import type { SimulationInstance } from '../types';
+import type { ApfParams } from './types';
 import { DEFAULT_PARAMS } from './config';
 import {
   createSimulation,
@@ -33,7 +34,7 @@ function createApfSimulation(
   );
 
   const { pauseBtn } = buildApfPanel(panel, DEFAULT_PARAMS, {
-    onParamsChange: (newParams) => { state = updateParams(state, newParams); },
+    onParamsChange: (newParams: ApfParams) => { state = updateParams(state, newParams); },
     onPause: () => {
       loop.toggle();
       pauseBtn.textContent = loop.isRunning() ? 'Pause' : 'Resume';

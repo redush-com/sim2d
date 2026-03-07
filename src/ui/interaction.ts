@@ -1,10 +1,22 @@
-import type { Vec2, SimulationState, Obstacle } from '../types';
+import type { Vec2 } from '../types';
 import * as vec from '../math/vector';
 
 /** Callbacks for drag interactions */
 export interface InteractionCallbacks {
   onGoalMoved: (position: Vec2) => void;
   onObstacleMoved: (index: number, position: Vec2) => void;
+}
+
+/** Obstacle shape for hit-testing */
+interface HitTestObstacle {
+  position: Vec2;
+  radius: number;
+}
+
+/** State provider for hit-testing */
+interface InteractionState {
+  goalPosition: Vec2;
+  obstacles: HitTestObstacle[];
 }
 
 /** Internal drag state */
@@ -41,7 +53,7 @@ function hitTestGoal(pos: Vec2, goalPos: Vec2): boolean {
  * @param obstacles - array of obstacles
  * @returns index of hit obstacle, or -1
  */
-function hitTestObstacles(pos: Vec2, obstacles: Obstacle[]): number {
+function hitTestObstacles(pos: Vec2, obstacles: HitTestObstacle[]): number {
   for (let i = 0; i < obstacles.length; i++) {
     if (vec.distance(pos, obstacles[i].position) < obstacles[i].radius + 15) {
       return i;
@@ -53,12 +65,12 @@ function hitTestObstacles(pos: Vec2, obstacles: Obstacle[]): number {
 /**
  * Initializes mouse drag interaction on the canvas for moving goal and obstacles.
  * @param canvas - the canvas element to attach listeners to
- * @param getState - function returning current simulation state for hit-testing
+ * @param getState - function returning current state for hit-testing
  * @param callbacks - handlers called when goal or obstacle is dragged
  */
 export function initInteraction(
   canvas: HTMLCanvasElement,
-  getState: () => SimulationState,
+  getState: () => InteractionState,
   callbacks: InteractionCallbacks
 ): void {
   const drag: DragState = { active: false, target: 'goal', obstacleIndex: -1 };

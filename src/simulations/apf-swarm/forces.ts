@@ -1,4 +1,5 @@
-import type { Vec2, Obstacle, SimulationParams } from '../../types';
+import type { Vec2 } from '../../types';
+import type { Obstacle, ApfParams } from './types';
 import * as vec from '../../math/vector';
 
 /** Maximum attractive force magnitude to prevent overpowering repulsion */
@@ -89,7 +90,7 @@ export function totalForce(
   goalPos: Vec2,
   obstacles: Obstacle[],
   otherAgentPositions: Vec2[],
-  params: SimulationParams
+  params: ApfParams
 ): Vec2 {
   let force = attractiveForce(agentPos, goalPos, params.kAtt);
 

@@ -1,7 +1,7 @@
-import type { SimulationParams } from '../../types';
+import type { ApfParams } from './types';
 
 /** Default simulation parameters tuned for visually appealing swarm behavior */
-export const DEFAULT_PARAMS: SimulationParams = {
+export const DEFAULT_PARAMS: ApfParams = {
   kAtt: 1.0,
   kRep: 15.0,
   kRepRobot: 8.0,
