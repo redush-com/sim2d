@@ -16,23 +16,23 @@ Expand the existing 2D swarm intelligence simulator into a full platform with:
 
 ## Architecture Decisions
 
-### Routing: Hash-based SPA
+### Routing: Clean URL SPA (History API)
 
-Replace `App` class with a `Router` using `#/` hash routing. No server-side rewrites needed on Vercel.
+Replace `App` class with a `Router` using History API (`pushState`/`popstate`). Vercel rewrites configured for SPA fallback.
 
 | Route | Screen | Auth required |
 |-------|--------|---------------|
-| `#/` | Main menu (simulation cards) | No |
-| `#/sim/:id` | Built-in simulation | No |
-| `#/editor` | New custom simulation | Yes |
-| `#/editor/:id` | Edit saved simulation | Yes |
-| `#/shared/:token` | View shared simulation | No |
-| `#/login` | OAuth login screen | No |
-| `#/profile` | Saved simulations list | Yes |
+| `/` | Main menu (simulation cards) | No |
+| `/sim/:id` | Built-in simulation | No |
+| `/editor` | New custom simulation | Yes |
+| `/editor/:id` | Edit saved simulation | Yes |
+| `/shared/:token` | View shared simulation | No |
+| `/login` | OAuth login screen | No |
+| `/profile` | Saved simulations list | Yes |
 
 ### Auth: Supabase OAuth
 
-`@supabase/supabase-js` v2 with Google + GitHub providers. Simple observable `authStore` pattern (value + subscriber list, no library) for reactive UI updates. Auth guard redirects to `#/login` for protected routes.
+`@supabase/supabase-js` v2 with Google + GitHub providers. Simple observable `authStore` pattern (value + subscriber list, no library) for reactive UI updates. Auth guard redirects to `/login` for protected routes.
 
 ### Code Editor: CodeMirror 6
 
@@ -151,7 +151,10 @@ CREATE TRIGGER on_auth_user_created
     "@codemirror/view": "^6.x",
     "@codemirror/state": "^6.x",
     "@codemirror/lang-javascript": "^6.x",
-    "@codemirror/theme-one-dark": "^6.x"
+    "@codemirror/theme-one-dark": "^6.x",
+    "@codemirror/commands": "^6.x",
+    "@codemirror/autocomplete": "^6.x",
+    "@codemirror/language": "^6.x"
   }
 }
 ```
@@ -217,71 +220,67 @@ Fireflies attracted to brighter neighbors. Brightness depends on fitness functio
 ```
 src/
   main.ts                             # Entry: register sims, init router + auth listener
-  router.ts                           # NEW: hash-based SPA router (replaces App)
-  types.ts                            # Vec2, BaseAgent only (APF types moved out)
+  router.ts                           # SPA router with History API (clean URLs)
+  types.ts                            # Vec2 only (APF types moved out)
   loop.ts
 
   auth/
-    supabase-client.ts                # NEW: createClient() singleton
-    auth-service.ts                   # NEW: signIn/signOut/onAuthStateChange
-    auth-store.ts                     # NEW: observable { user, session }
+    supabase-client.ts                # createClient() singleton
+    auth-service.ts                   # signIn/signOut/onAuthStateChange
+    auth-store.ts                     # observable { user, session }
 
   db/
-    profiles.ts                       # NEW: profile CRUD
-    saved-simulations.ts              # NEW: save/load/delete configs
-    shared-links.ts                   # NEW: create/resolve share tokens
+    profiles.ts                       # profile CRUD
+    saved-simulations.ts              # save/load/delete configs
+    shared-links.ts                   # create/resolve share tokens
 
   math/
     vector.ts
 
   rendering/
     canvas-manager.ts
-    shared.ts                         # NEW: clearCanvas, drawGrid, drawArrow, drawHeatmap
+    shared.ts                         # clearCanvas, drawGrid, drawArrow, drawHeatmap
 
   ui/
-    main-menu.ts                      # MODIFY: add auth status in navbar
-    navbar.ts                         # NEW: top bar (logo, login/avatar, save btn)
-    login-screen.ts                   # NEW: OAuth buttons (Google, GitHub)
-    profile-screen.ts                 # NEW: list saved simulations
-    share-modal.ts                    # NEW: generate/copy share link
-    panel-builder.ts                  # NEW: generic slider panel builder
+    main-menu.ts                      # simulation cards grid
+    login-screen.ts                   # OAuth buttons (Google, GitHub)
+    profile-screen.ts                 # list saved simulations
+    share-modal.ts                    # generate/copy share link
+    panel-builder.ts                  # generic slider panel builder
     interaction.ts
 
   editor/
-    editor-view.ts                    # NEW: CodeMirror 6 setup and mounting
-    editor-panel.ts                   # NEW: editor + run/stop controls in panel
-    templates.ts                      # NEW: starter code templates
+    editor-view.ts                    # CodeMirror 6 setup and mounting
+    templates.ts                      # starter code templates
 
   simulations/
     types.ts                          # SimulationDefinition, SimulationInstance
     registry.ts
 
-    apf-swarm/                        # EXISTING (move APF-specific types to local types.ts)
+    apf-swarm/                        # APF simulation
       types.ts, index.ts, simulation.ts, config.ts, agent.ts,
       forces.ts, obstacle.ts, panel.ts, local-minima.ts
       renderers/ (renderer.ts, agent-renderer.ts, goal-renderer.ts, obstacle-renderer.ts)
 
-    boids/                            # NEW
+    boids/                            # Boids flocking
       index.ts, types.ts, config.ts, simulation.ts, behaviors.ts
       renderers/ (renderer.ts, agent-renderer.ts)
 
-    ant-colony/                       # NEW
+    ant-colony/                       # Ant Colony Optimization
       index.ts, types.ts, config.ts, simulation.ts, pheromones.ts
       renderers/ (renderer.ts, pheromone-renderer.ts, ant-renderer.ts)
 
-    pso/                              # NEW
+    pso/                              # Particle Swarm Optimization
       index.ts, types.ts, config.ts, simulation.ts, fitness.ts
       renderers/ (renderer.ts, landscape-renderer.ts, particle-renderer.ts)
 
-    firefly/                          # NEW
+    firefly/                          # Firefly Algorithm
       index.ts, types.ts, config.ts, simulation.ts
       renderers/ (renderer.ts, glow-renderer.ts)
 
-    custom/                           # NEW
+    custom/                           # Custom user simulations
       index.ts                        # Registers "Custom Simulation" card in menu
-      custom-adapter.ts               # Adapts worker to SimulationInstance interface
-      sandbox.ts                      # Web Worker lifecycle + timeout watchdog
-      worker.ts                       # Worker entry: sandboxed user code execution
+      sandbox.ts                      # Sandboxed execution via new Function() + timeout
       draw-proxy.ts                   # DrawCommand protocol + canvas replay
 ```
 
@@ -289,56 +288,74 @@ src/
 
 ## Implementation Phases
 
-### Phase 1: Infrastructure + Router + Auth
+### Phase 1: Infrastructure + Router + Auth -- DONE
 
-1. Create `src/router.ts` -- hash-based router with route matching, auth guards
-2. Refactor `src/app.ts` logic into router (keep layout creation helpers)
-3. Add `@supabase/supabase-js`, create `auth/` module (client, service, store)
-4. Build `ui/login-screen.ts` with Google + GitHub OAuth buttons
-5. Build `ui/navbar.ts` -- top bar with auth state (login button or avatar)
-6. Move APF-specific types from `src/types.ts` to `src/simulations/apf-swarm/types.ts`
-7. Create `src/ui/panel-builder.ts` -- generic panel builder
-8. Create `src/rendering/shared.ts` -- shared render utilities
-9. Set up Supabase project (tables, RLS policies, OAuth providers)
-10. Set up Vercel deployment with env vars (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`)
+- [x] Create `src/router.ts` -- History API router with route matching, auth guards
+- [x] Refactor `src/app.ts` logic into router (app.ts deleted)
+- [x] Add `@supabase/supabase-js`, create `auth/` module (client, service, store)
+- [x] Build `ui/login-screen.ts` with Google + GitHub OAuth buttons
+- [x] Navbar with auth state integrated into router
+- [x] Move APF-specific types from `src/types.ts` to `src/simulations/apf-swarm/types.ts`
+- [x] Create `src/ui/panel-builder.ts` -- generic panel builder
+- [x] Create `src/rendering/shared.ts` -- shared render utilities
+- [x] Set up Supabase project (tables, RLS policies, auth trigger) -- schema applied via psql
+- [x] Set up Vercel deployment with env vars (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`)
+- [x] Configure `vercel.json` with SPA rewrites for clean URLs
+- [x] Enable Google OAuth provider in Supabase Dashboard
+- [x] Enable GitHub OAuth provider in Supabase Dashboard
 
-### Phase 2: Built-in Simulations
+### Phase 2: Built-in Simulations -- DONE
 
 Each follows the APF pattern: `index.ts` -> `register()`, `simulation.ts` -> pure `tick()`, `config.ts` -> defaults, `renderers/`.
 
-1. **Boids** -- separation, alignment, cohesion. Agents as directional triangles. ~200 LOC logic.
-2. **PSO** -- fitness landscape (Rastrigin/Rosenbrock), personal/global best. Contour map. ~200 LOC logic.
-3. **ACO** -- pheromone grid, evaporation, nest<->food pathfinding. Heatmap. ~250 LOC logic.
-4. **Firefly** -- brightness = fitness, attraction to brighter. Glow rendering. ~150 LOC logic.
+- [x] **Boids** -- separation, alignment, cohesion. Agents as directional triangles.
+- [x] **PSO** -- fitness landscape (Rastrigin/Rosenbrock/Ackley/Sphere), personal/global best. Contour map.
+- [x] **ACO** -- pheromone grid, evaporation, nest<->food pathfinding. Heatmap.
+- [x] **Firefly** -- brightness = fitness, attraction to brighter. Glow rendering. Reuses PSO fitness functions.
 
-### Phase 3: Save Configurations
+### Phase 3: Save Configurations -- DONE (code)
 
-1. Create `db/` module (profiles, saved-simulations, shared-links CRUD)
-2. Add "Save" button to simulation panels (visible when authenticated)
-3. Build `ui/profile-screen.ts` -- list, load, delete saved configs
-4. Support loading saved params via `#/sim/boids?config=<uuid>`
+- [x] Create `db/` module (profiles, saved-simulations, shared-links CRUD)
+- [x] Build `ui/profile-screen.ts` -- list, load, delete saved configs
+- [ ] Add "Save" button to simulation panels (visible when authenticated)
+- [ ] Support loading saved params via `/sim/boids?config=<uuid>`
 
-### Phase 4: Custom Code Editor
+### Phase 4: Custom Code Editor -- DONE (code)
 
-1. Add CodeMirror 6 with JS syntax highlighting + one-dark theme
-2. Build Web Worker sandbox with draw command protocol
-3. Build `custom-adapter.ts` bridging worker to `SimulationInstance`
-4. Add starter templates (empty, simple particles, simple flocking)
-5. Timeout watchdog (100ms/tick), draw command limit (10k/frame)
-6. Save/load custom code to Supabase
+- [x] Add CodeMirror 6 with JS syntax highlighting + one-dark theme
+- [x] Build sandbox with `new Function()` + DrawProxy draw command protocol
+- [x] Build custom simulation adapter in `custom/index.ts`
+- [x] Add starter templates (empty, bouncing particles, simple flocking)
+- [x] Timeout watchdog (100ms/tick), draw command limit (10k/frame)
+- [ ] Save/load custom code to Supabase
 
-### Phase 5: Sharing
+### Phase 5: Sharing -- PARTIAL
 
-1. "Share" button creates `shared_links` row, copies URL to clipboard
-2. `#/shared/:token` route resolves token via Supabase, loads simulation
-3. Shared custom sims run in same sandboxed worker
-4. `ui/share-modal.ts` -- toggle visibility (public/private), copy link
+- [x] `db/shared-links.ts` -- create/resolve share tokens (code ready)
+- [x] `/shared/:token` route exists in router
+- [ ] "Share" button UI in simulation panels
+- [ ] `ui/share-modal.ts` -- toggle visibility, copy link
+- [ ] Shared custom sims load and run in sandbox
 
-### Phase 6: Polish
+### Phase 6: Polish -- NOT STARTED
 
-1. Animated previews on main menu cards (mini canvas)
-2. Tag-based filtering on main menu
-3. Responsive layout for mobile
+- [ ] Animated previews on main menu cards (mini canvas)
+- [ ] Tag-based filtering on main menu
+- [ ] Responsive layout for mobile
+
+---
+
+## Deployment -- DONE
+
+- [x] `vercel.json` configured (build command, output dir, SPA rewrites)
+- [x] Vite `manualChunks` for code-splitting (main ~65KB, supabase ~172KB, codemirror ~402KB)
+- [x] GitHub org repo: `redush-com/sim2d` (primary)
+- [x] GitHub personal repo: `brnikita/sim2d` (Vercel-connected)
+- [x] GitHub Action auto-syncs org -> personal on push to main
+- [x] Vercel project created, importing from `brnikita/sim2d`
+- [x] Vercel deployment live
+- [x] Custom domain `sim2d.com` added in Vercel
+- [x] Supabase Site URL set to `https://sim2d.com`
 
 ---
 
@@ -360,7 +377,7 @@ Each follows the APF pattern: `index.ts` -> `register()`, `simulation.ts` -> pur
 ### Auth
 - [ ] Google OAuth login/logout works
 - [ ] GitHub OAuth login/logout works
-- [ ] Protected routes (`#/editor`, `#/profile`) redirect to `#/login`
+- [ ] Protected routes (`/editor`, `/profile`) redirect to `/login`
 - [ ] Auth state persists on page refresh
 
 ### Built-in Simulations (for each model)
@@ -391,7 +408,7 @@ Each follows the APF pattern: `index.ts` -> `register()`, `simulation.ts` -> pur
 - [ ] Expired links show appropriate error
 
 ### Deployment
-- [ ] `npm run build` succeeds without errors
-- [ ] Vercel deploy serves the app correctly
-- [ ] Supabase env vars are picked up by Vite
-- [ ] OAuth callback redirects work on production URL
+- [x] `npm run build` succeeds without errors
+- [x] Vercel deploy serves the app correctly
+- [x] Supabase env vars are picked up by Vite
+- [x] OAuth callback redirects work on production URL
