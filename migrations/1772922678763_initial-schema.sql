@@ -1,7 +1,5 @@
 -- Up Migration
 
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
 -- Profiles (auto-created on sign-up via trigger)
 CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -58,7 +56,7 @@ CREATE INDEX idx_saved_simulations_user ON saved_simulations(user_id);
 CREATE TABLE shared_links (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   simulation_id UUID NOT NULL REFERENCES saved_simulations(id) ON DELETE CASCADE,
-  share_token TEXT NOT NULL UNIQUE DEFAULT encode(gen_random_bytes(12), 'hex'),
+  share_token TEXT NOT NULL UNIQUE DEFAULT replace(gen_random_uuid()::text, '-', ''),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   expires_at TIMESTAMPTZ
 );
