@@ -106,6 +106,25 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
+  migrate-check:
+    name: Migration Dry Run
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Dry run pending migrations
+        run: npm run migrate:dry
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
   migrate:
     name: Run Migrations
     runs-on: ubuntu-latest
