@@ -1,0 +1,19 @@
+name: Sync to personal repo
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to personal repo
+        run: |
+          git remote add personal https://x-access-token:${{ secrets.PERSONAL_REPO_TOKEN }}@github.com/brnikita/swarm-intelligence.git
+          git push personal main --force
