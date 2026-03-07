@@ -1,5 +1,5 @@
-import type { Vec2, Obstacle } from '../types';
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../config';
+import type { Vec2, Obstacle } from '../../types';
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from './config';
 
 /**
  * Creates a circular obstacle at the given position.

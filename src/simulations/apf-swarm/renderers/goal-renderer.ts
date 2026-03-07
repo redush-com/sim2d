@@ -1,4 +1,4 @@
-import type { Vec2 } from '../types';
+import type { Vec2 } from '../../../types';
 
 /**
  * Renders the goal as a pulsing crosshair with a glowing halo.

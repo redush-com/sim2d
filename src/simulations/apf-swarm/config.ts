@@ -1,4 +1,4 @@
-import type { SimulationParams } from './types';
+import type { SimulationParams } from '../../types';
 
 /** Default simulation parameters tuned for visually appealing swarm behavior */
 export const DEFAULT_PARAMS: SimulationParams = {

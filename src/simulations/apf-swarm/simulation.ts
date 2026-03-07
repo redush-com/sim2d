@@ -1,10 +1,10 @@
-import type { Vec2, AgentState, Obstacle, SimulationParams, SimulationState } from '../types';
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../config';
+import type { Vec2, AgentState, Obstacle, SimulationParams, SimulationState } from '../../types';
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from './config';
 import { createAgent, updateAgent } from './agent';
 import { createDefaultObstacles } from './obstacle';
-import { totalForce } from '../math/forces';
+import { totalForce } from './forces';
 import { updateStuckCounter, applyPerturbation } from './local-minima';
-import * as vec from '../math/vector';
+import * as vec from '../../math/vector';
 
 /**
  * Generates random spawn positions for agents on the left side of the canvas.

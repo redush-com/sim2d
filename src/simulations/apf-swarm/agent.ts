@@ -1,5 +1,5 @@
-import type { Vec2, AgentState, SimulationParams } from '../types';
-import * as vec from '../math/vector';
+import type { Vec2, AgentState, SimulationParams } from '../../types';
+import * as vec from '../../math/vector';
 
 /**
  * Creates a new agent at the given position with zero velocity.

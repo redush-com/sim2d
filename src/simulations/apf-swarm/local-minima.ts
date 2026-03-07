@@ -1,5 +1,5 @@
-import type { AgentState } from '../types';
-import * as vec from '../math/vector';
+import type { AgentState } from '../../types';
+import * as vec from '../../math/vector';
 
 /**
  * Checks whether an agent's velocity is below the stuck threshold.

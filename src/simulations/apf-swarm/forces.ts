@@ -1,5 +1,5 @@
-import type { Vec2, Obstacle, SimulationParams } from '../types';
-import * as vec from './vector';
+import type { Vec2, Obstacle, SimulationParams } from '../../types';
+import * as vec from '../../math/vector';
 
 /** Maximum attractive force magnitude to prevent overpowering repulsion */
 const MAX_ATTRACTIVE_FORCE = 50;

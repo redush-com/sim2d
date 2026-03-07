@@ -1,4 +1,4 @@
-import type { Obstacle } from '../types';
+import type { Obstacle } from '../../../types';
 
 /**
  * Renders all obstacles as solid circles with translucent influence-zone halos.

@@ -1,6 +1,6 @@
-import type { AgentState } from '../types';
+import type { AgentState } from '../../../types';
 import { AGENT_COLORS } from '../config';
-import * as vec from '../math/vector';
+import * as vec from '../../../math/vector';
 
 /**
  * Renders a single agent's trail as a fading polyline.

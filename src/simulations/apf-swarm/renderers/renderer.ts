@@ -1,4 +1,4 @@
-import type { SimulationState } from '../types';
+import type { SimulationState } from '../../../types';
 import { renderGoal } from './goal-renderer';
 import { renderObstacles } from './obstacle-renderer';
 import { renderAgents } from './agent-renderer';
