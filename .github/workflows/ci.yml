@@ -48,6 +48,37 @@ jobs:
       - name: Unit & Integration Tests
         run: npm test -- --reporter=verbose
 
+  migrate-check:
+    name: Migration Check
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - run: npm ci
+
+      - name: Start Supabase
+        run: supabase init --with-intellij-settings false && supabase start
+
+      - name: Migrate up
+        run: npm run migrate:up
+
+      - name: Migrate down
+        run: npm run migrate:down
+
+      - name: Migrate up again (verify reversibility)
+        run: npm run migrate:up
+
   build:
     name: Build
     runs-on: ubuntu-latest

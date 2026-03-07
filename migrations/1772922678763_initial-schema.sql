@@ -1,8 +1,7 @@
--- Swarm Intelligence Platform - Supabase Schema
--- Run this in the Supabase SQL Editor to set up the database
+-- Up Migration
 
--- 1. Profiles (auto-created on sign-up)
-CREATE TABLE IF NOT EXISTS profiles (
+-- Profiles (auto-created on sign-up via trigger)
+CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   display_name TEXT NOT NULL DEFAULT '',
   avatar_url TEXT,
@@ -18,8 +17,8 @@ CREATE POLICY "Anyone can read profiles"
 CREATE POLICY "Users can update own profile"
   ON profiles FOR UPDATE USING (auth.uid() = id);
 
--- 2. Saved simulations
-CREATE TABLE IF NOT EXISTS saved_simulations (
+-- Saved simulations
+CREATE TABLE saved_simulations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
@@ -51,13 +50,13 @@ CREATE POLICY "Users can delete own simulations"
   ON saved_simulations FOR DELETE
   USING (auth.uid() = user_id);
 
-CREATE INDEX IF NOT EXISTS idx_saved_simulations_user ON saved_simulations(user_id);
+CREATE INDEX idx_saved_simulations_user ON saved_simulations(user_id);
 
--- 3. Shared links
-CREATE TABLE IF NOT EXISTS shared_links (
+-- Shared links
+CREATE TABLE shared_links (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   simulation_id UUID NOT NULL REFERENCES saved_simulations(id) ON DELETE CASCADE,
-  share_token TEXT NOT NULL UNIQUE DEFAULT encode(gen_random_bytes(12), 'hex'),
+  share_token TEXT NOT NULL UNIQUE DEFAULT replace(gen_random_uuid()::text, '-', ''),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   expires_at TIMESTAMPTZ
 );
@@ -85,9 +84,9 @@ CREATE POLICY "Users can delete own shared links"
     )
   );
 
-CREATE INDEX IF NOT EXISTS idx_shared_links_token ON shared_links(share_token);
+CREATE INDEX idx_shared_links_token ON shared_links(share_token);
 
--- 4. Auto-create profile on sign-up
+-- Auto-create profile on sign-up
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -101,7 +100,16 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+
+-- Down Migration
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+DROP FUNCTION IF EXISTS handle_new_user();
+DROP INDEX IF EXISTS idx_shared_links_token;
+DROP TABLE IF EXISTS shared_links;
+DROP INDEX IF EXISTS idx_saved_simulations_user;
+DROP TABLE IF EXISTS saved_simulations;
+DROP TABLE IF EXISTS profiles;
