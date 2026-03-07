@@ -12,6 +12,9 @@ import {
 import { createRenderer, render } from './renderers/renderer';
 import { buildPanel, type PanelControls } from '../../ui/panel-builder';
 import { createLoop } from '../../loop';
+import { authStore } from '../../auth/auth-store';
+import { saveSimulation } from '../../db/saved-simulations';
+import { navigateTo } from '../../router';
 
 /** Panel configuration for the PSO simulation */
 const PSO_PANEL_CONFIG = {
@@ -44,6 +47,7 @@ function buildPsoPanel(
     onPause: () => void;
     onReset: () => void;
     onFunctionChange: (index: number) => void;
+    onSave?: () => void;
   }
 ): PanelControls {
   const controls = buildPanel(
@@ -64,6 +68,7 @@ function buildPsoPanel(
       },
       onPause: callbacks.onPause,
       onReset: callbacks.onReset,
+      onSave: callbacks.onSave,
     }
   );
 
@@ -94,6 +99,31 @@ function updateFunctionLabel(index: number): void {
 }
 
 /**
+ * Handles saving the current PSO configuration to the database.
+ * Redirects to login if the user is not authenticated.
+ * @param getParams - function returning the current simulation parameters
+ * @param saveBtn - the save button element to show feedback on (may be null)
+ */
+async function handlePsoSave(
+  getParams: () => Record<string, number>,
+  saveBtn: HTMLButtonElement | null
+): Promise<void> {
+  if (!authStore.getState().user) { navigateTo('/login'); return; }
+  await saveSimulation({
+    title: 'Particle Swarm Optimization',
+    description: PSO_PANEL_CONFIG.description,
+    sim_type: 'builtin',
+    builtin_id: 'pso',
+    params: getParams(),
+    source_code: undefined,
+  });
+  if (saveBtn) {
+    saveBtn.textContent = 'Saved!';
+    setTimeout(() => { saveBtn.textContent = 'Save Configuration'; }, 1500);
+  }
+}
+
+/**
  * Creates a PSO simulation instance bound to the given canvas and panel.
  * @param canvas - the canvas element for rendering
  * @param panel - the side panel element for controls
@@ -111,7 +141,7 @@ function createPsoSimulation(
     (time) => { render(renderer, state, time); }
   );
 
-  const { pauseBtn } = buildPsoPanel(panel, { ...DEFAULT_PARAMS }, {
+  const { pauseBtn, saveBtn, getParams } = buildPsoPanel(panel, { ...DEFAULT_PARAMS }, {
     onParamsChange: (newParams: PsoParams) => { state = updateParams(state, newParams); },
     onPause: () => {
       loop.toggle();
@@ -119,6 +149,7 @@ function createPsoSimulation(
     },
     onReset: () => { state = resetParticles(state); },
     onFunctionChange: (index: number) => { state = setFunction(state, index); },
+    onSave: () => { handlePsoSave(getParams, saveBtn); },
   });
 
   const handleResize = () => {

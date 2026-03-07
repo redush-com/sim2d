@@ -1,20 +1,86 @@
 import { register } from '../registry';
-import type { SimulationInstance } from '../types';
+import type { SimulationInstance, SavedConfig } from '../types';
 import { createLoop } from '../../loop';
 import { SimulationSandbox } from './sandbox';
 import { createEditorView, getCode, setCode } from '../../editor/editor-view';
 import { getTemplates } from '../../editor/templates';
 import { clearCanvas } from '../../rendering/shared';
+import { saveSimulation } from '../../db/saved-simulations';
+import { authStore } from '../../auth/auth-store';
+import { navigateTo } from '../../router';
+
+/**
+ * Handles the save button click: prompts for a title, saves the current
+ * editor code to the database, and shows brief feedback on the button.
+ * Navigates to /login if the user is not authenticated.
+ * @param getCodeFn - function that returns the current editor source code
+ * @param saveBtn - the save button element to show feedback on
+ */
+async function handleSaveClick(
+  getCodeFn: () => string,
+  saveBtn: HTMLButtonElement
+): Promise<void> {
+  const { user } = authStore.getState();
+  if (!user) {
+    navigateTo('/login');
+    return;
+  }
+
+  const title = prompt('Enter a title for your simulation:');
+  if (!title) return;
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving...';
+
+  const result = await saveSimulation({
+    title,
+    description: '',
+    sim_type: 'custom',
+    builtin_id: undefined,
+    params: {},
+    source_code: getCodeFn(),
+  });
+
+  saveBtn.textContent = result ? 'Saved!' : 'Error';
+  setTimeout(() => {
+    saveBtn.textContent = 'Save';
+    saveBtn.disabled = false;
+  }, 1500);
+}
+
+/**
+ * Creates a Save button styled to match the existing dark-themed button row.
+ * Visibility updates reactively based on authentication state.
+ * @param getCodeFn - function that returns the current editor source code
+ * @returns the save button element
+ */
+function createSaveButton(getCodeFn: () => string): HTMLButtonElement {
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'editor-save-btn';
+  saveBtn.textContent = 'Save';
+
+  const updateVisibility = () => {
+    const { user } = authStore.getState();
+    saveBtn.style.display = user ? 'block' : 'none';
+  };
+  updateVisibility();
+  authStore.subscribe(updateVisibility);
+
+  saveBtn.addEventListener('click', () => handleSaveClick(getCodeFn, saveBtn));
+  return saveBtn;
+}
 
 /**
  * Creates a custom simulation instance with a code editor and sandbox.
  * @param canvas - the canvas element for rendering
  * @param panel - the side panel element for the editor
+ * @param savedConfig - optional saved configuration with source code to restore
  * @returns a controllable simulation instance
  */
 function createCustomSimulation(
   canvas: HTMLCanvasElement,
-  panel: HTMLElement
+  panel: HTMLElement,
+  savedConfig?: SavedConfig
 ): SimulationInstance {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Failed to get 2D rendering context');
@@ -69,7 +135,8 @@ function createCustomSimulation(
   editorContainer.className = 'editor-container';
   panel.appendChild(editorContainer);
 
-  const editorView = createEditorView(editorContainer, templates[0].code);
+  const initialCode = savedConfig?.sourceCode || templates[0].code;
+  const editorView = createEditorView(editorContainer, initialCode);
 
   // Error display
   const errorDisplay = document.createElement('div');
@@ -88,8 +155,11 @@ function createCustomSimulation(
   stopBtn.className = 'editor-stop-btn';
   stopBtn.textContent = 'Stop';
 
+  const saveBtn = createSaveButton(() => getCode(editorView));
+
   btnRow.appendChild(runBtn);
   btnRow.appendChild(stopBtn);
+  btnRow.appendChild(saveBtn);
   panel.appendChild(btnRow);
 
   // Info
@@ -193,10 +263,15 @@ function addEditorStyles(panel: HTMLElement): void {
       border-radius: 6px; font-size: 12px; color: #ff6666; font-family: monospace;
     }
     .editor-btn-row { display: flex; gap: 8px; margin-top: 8px; }
-    .editor-run-btn, .editor-stop-btn {
+    .editor-run-btn, .editor-stop-btn, .editor-save-btn {
       flex: 1; padding: 8px 0; border-radius: 6px; font-size: 12px;
       font-weight: 500; cursor: pointer; transition: all 0.15s;
     }
+    .editor-save-btn {
+      background: #1a2a3a; border: 1px solid #2a4a6a; color: #66aacc;
+    }
+    .editor-save-btn:hover { background: #1a3a4a; border-color: #3a6a8a; }
+    .editor-save-btn:disabled { opacity: 0.6; cursor: default; }
     .editor-run-btn {
       background: #1a3a1a; border: 1px solid #2a5a2a; color: #66cc66;
     }

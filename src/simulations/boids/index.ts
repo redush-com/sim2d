@@ -6,6 +6,9 @@ import { createSimulation, tick, updateParams, resetAgents } from './simulation'
 import { createRenderer, render } from './renderers/renderer';
 import { buildPanel, type PanelControls } from '../../ui/panel-builder';
 import { createLoop } from '../../loop';
+import { authStore } from '../../auth/auth-store';
+import { saveSimulation } from '../../db/saved-simulations';
+import { navigateTo } from '../../router';
 
 /** Panel configuration for the Boids flocking simulation */
 const BOIDS_PANEL_CONFIG = {
@@ -37,6 +40,7 @@ function buildBoidsPanel(
     onParamsChange: (params: BoidParams) => void;
     onPause: () => void;
     onReset: () => void;
+    onSave?: () => void;
   }
 ): PanelControls {
   return buildPanel(
@@ -47,8 +51,34 @@ function buildBoidsPanel(
       onParamsChange: (p) => callbacks.onParamsChange(p as unknown as BoidParams),
       onPause: callbacks.onPause,
       onReset: callbacks.onReset,
+      onSave: callbacks.onSave,
     }
   );
+}
+
+/**
+ * Handles saving the current Boids configuration to the database.
+ * Redirects to login if the user is not authenticated.
+ * @param getParams - function returning the current simulation parameters
+ * @param saveBtn - the save button element to show feedback on (may be null)
+ */
+async function handleBoidsSave(
+  getParams: () => Record<string, number>,
+  saveBtn: HTMLButtonElement | null
+): Promise<void> {
+  if (!authStore.getState().user) { navigateTo('/login'); return; }
+  await saveSimulation({
+    title: 'Boids Flocking',
+    description: BOIDS_PANEL_CONFIG.description,
+    sim_type: 'builtin',
+    builtin_id: 'boids',
+    params: getParams(),
+    source_code: undefined,
+  });
+  if (saveBtn) {
+    saveBtn.textContent = 'Saved!';
+    setTimeout(() => { saveBtn.textContent = 'Save Configuration'; }, 1500);
+  }
 }
 
 /**
@@ -72,13 +102,14 @@ function createBoidsSimulation(
     () => { render(renderer, state); }
   );
 
-  const { pauseBtn } = buildBoidsPanel(panel, DEFAULT_PARAMS, {
+  const { pauseBtn, saveBtn, getParams } = buildBoidsPanel(panel, DEFAULT_PARAMS, {
     onParamsChange: (newParams: BoidParams) => { state = updateParams(state, newParams); },
     onPause: () => {
       loop.toggle();
       pauseBtn.textContent = loop.isRunning() ? 'Pause' : 'Resume';
     },
     onReset: () => { state = resetAgents(state); },
+    onSave: () => { handleBoidsSave(getParams, saveBtn); },
   });
 
   const handleResize = () => {

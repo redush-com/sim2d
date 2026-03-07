@@ -33,6 +33,7 @@ export function buildApfPanel(
     onParamsChange: (params: ApfParams) => void;
     onPause: () => void;
     onReset: () => void;
+    onSave?: () => void;
   }
 ): PanelControls {
   return buildPanel(
@@ -43,6 +44,7 @@ export function buildApfPanel(
       onParamsChange: (p) => callbacks.onParamsChange(p as unknown as ApfParams),
       onPause: callbacks.onPause,
       onReset: callbacks.onReset,
+      onSave: callbacks.onSave,
     }
   );
 }

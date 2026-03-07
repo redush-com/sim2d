@@ -1,3 +1,5 @@
+import { authStore } from '../auth/auth-store';
+
 /** Configuration for a single slider control */
 export interface SliderDef {
   key: string;
@@ -17,9 +19,18 @@ export interface PanelConfig {
   info?: string;
 }
 
+/** Callbacks for panel interactions */
+export interface PanelCallbacks {
+  onParamsChange: (params: Record<string, number>) => void;
+  onPause: () => void;
+  onReset: () => void;
+  onSave?: () => void;
+}
+
 /** Controls returned from the panel builder */
 export interface PanelControls {
   pauseBtn: HTMLButtonElement;
+  saveBtn: HTMLButtonElement | null;
   getParams: () => Record<string, number>;
 }
 
@@ -35,11 +46,7 @@ export function buildPanel(
   panel: HTMLElement,
   config: PanelConfig,
   params: Record<string, number>,
-  callbacks: {
-    onParamsChange: (params: Record<string, number>) => void;
-    onPause: () => void;
-    onReset: () => void;
-  }
+  callbacks: PanelCallbacks
 ): PanelControls {
   panel.innerHTML = '';
   addPanelStyles(panel);
@@ -81,6 +88,8 @@ export function buildPanel(
   btnRow.appendChild(resetBtn);
   panel.appendChild(btnRow);
 
+  const saveBtn = createSaveButton(panel, callbacks);
+
   if (config.info) {
     const info = document.createElement('div');
     info.className = 'panel-info';
@@ -90,8 +99,31 @@ export function buildPanel(
 
   return {
     pauseBtn,
+    saveBtn,
     getParams: () => ({ ...currentParams }),
   };
+}
+
+/**
+ * Creates a "Save Configuration" button if the user is authenticated and an
+ * onSave callback is provided. Returns the button element or null.
+ * @param panel - container element to append the button to
+ * @param callbacks - panel callbacks; uses onSave when the button is clicked
+ * @returns the save button element, or null if not rendered
+ */
+function createSaveButton(
+  panel: HTMLElement,
+  callbacks: PanelCallbacks
+): HTMLButtonElement | null {
+  const user = authStore.getState().user;
+  if (!user || !callbacks.onSave) return null;
+
+  const btn = document.createElement('button');
+  btn.className = 'panel-save-btn';
+  btn.textContent = 'Save Configuration';
+  btn.addEventListener('click', () => callbacks.onSave?.());
+  panel.appendChild(btn);
+  return btn;
 }
 
 /**
@@ -156,6 +188,8 @@ function addPanelStyles(panel: HTMLElement): void {
     .panel-btn-row { display: flex; gap: 8px; margin-top: 12px; }
     .panel-btn-row button { flex: 1; padding: 8px 0; border: 1px solid #2a2a3a; border-radius: 6px; background: #14141e; color: #c0c0cc; font-size: 12px; font-weight: 500; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
     .panel-btn-row button:hover { background: #1c1c2a; border-color: #3a3a50; }
+    .panel-save-btn { width: 100%; padding: 8px 0; margin-top: 8px; border: 1px solid #334488; border-radius: 6px; background: #1a2244; color: #5588ff; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+    .panel-save-btn:hover { background: #223366; border-color: #5588ff; }
     .panel-info { margin-top: auto; padding-top: 16px; border-top: 1px solid #1a1a24; font-size: 10px; color: #444; line-height: 1.5; }
     .panel-info code { color: #5588ff; font-size: 10px; }
   `;

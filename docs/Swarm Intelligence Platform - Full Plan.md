@@ -313,35 +313,35 @@ Each follows the APF pattern: `index.ts` -> `register()`, `simulation.ts` -> pur
 - [x] **ACO** -- pheromone grid, evaporation, nest<->food pathfinding. Heatmap.
 - [x] **Firefly** -- brightness = fitness, attraction to brighter. Glow rendering. Reuses PSO fitness functions.
 
-### Phase 3: Save Configurations -- DONE (code)
+### Phase 3: Save Configurations -- DONE
 
 - [x] Create `db/` module (profiles, saved-simulations, shared-links CRUD)
 - [x] Build `ui/profile-screen.ts` -- list, load, delete saved configs
-- [ ] Add "Save" button to simulation panels (visible when authenticated)
-- [ ] Support loading saved params via `/sim/boids?config=<uuid>`
+- [x] Add "Save" button to simulation panels (visible when authenticated)
+- [x] Support loading saved configs via `/editor/:id` route
 
-### Phase 4: Custom Code Editor -- DONE (code)
+### Phase 4: Custom Code Editor -- DONE
 
 - [x] Add CodeMirror 6 with JS syntax highlighting + one-dark theme
 - [x] Build sandbox with `new Function()` + DrawProxy draw command protocol
 - [x] Build custom simulation adapter in `custom/index.ts`
 - [x] Add starter templates (empty, bouncing particles, simple flocking)
 - [x] Timeout watchdog (100ms/tick), draw command limit (10k/frame)
-- [ ] Save/load custom code to Supabase
+- [x] Save/load custom code to Supabase
 
-### Phase 5: Sharing -- PARTIAL
+### Phase 5: Sharing -- DONE
 
-- [x] `db/shared-links.ts` -- create/resolve share tokens (code ready)
-- [x] `/shared/:token` route exists in router
-- [ ] "Share" button UI in simulation panels
-- [ ] `ui/share-modal.ts` -- toggle visibility, copy link
-- [ ] Shared custom sims load and run in sandbox
+- [x] `db/shared-links.ts` -- create/resolve share tokens
+- [x] `/shared/:token` route resolves token and loads simulation
+- [x] Share modal UI (`ui/share-modal.ts`) -- generate link, copy to clipboard
+- [x] Shared custom sims load and run in sandbox
+- [x] Shared built-in sims load with saved params
 
-### Phase 6: Polish -- NOT STARTED
+### Phase 6: Polish -- PARTIAL
 
 - [ ] Animated previews on main menu cards (mini canvas)
-- [ ] Tag-based filtering on main menu
-- [ ] Responsive layout for mobile
+- [x] Tag-based filtering on main menu
+- [x] Responsive layout for mobile
 
 ---
 

@@ -14,6 +14,34 @@ import { createRenderer, render } from './renderers/renderer';
 import { buildApfPanel } from './panel';
 import { initInteraction } from '../../ui/interaction';
 import { createLoop } from '../../loop';
+import { authStore } from '../../auth/auth-store';
+import { saveSimulation } from '../../db/saved-simulations';
+import { navigateTo } from '../../router';
+
+/**
+ * Handles saving the current APF configuration to the database.
+ * Redirects to login if the user is not authenticated.
+ * @param getParams - function returning the current simulation parameters
+ * @param saveBtn - the save button element to show feedback on (may be null)
+ */
+async function handleApfSave(
+  getParams: () => Record<string, number>,
+  saveBtn: HTMLButtonElement | null
+): Promise<void> {
+  if (!authStore.getState().user) { navigateTo('/login'); return; }
+  await saveSimulation({
+    title: 'Artificial Potential Fields',
+    description: 'Artificial Potential Fields for multi-agent path planning.',
+    sim_type: 'builtin',
+    builtin_id: 'apf-swarm',
+    params: getParams(),
+    source_code: undefined,
+  });
+  if (saveBtn) {
+    saveBtn.textContent = 'Saved!';
+    setTimeout(() => { saveBtn.textContent = 'Save Configuration'; }, 1500);
+  }
+}
 
 /**
  * Creates an APF swarm simulation instance bound to the given canvas and panel.
@@ -33,13 +61,14 @@ function createApfSimulation(
     (time) => { render(renderer, state, time); }
   );
 
-  const { pauseBtn } = buildApfPanel(panel, DEFAULT_PARAMS, {
+  const { pauseBtn, saveBtn, getParams } = buildApfPanel(panel, DEFAULT_PARAMS, {
     onParamsChange: (newParams: ApfParams) => { state = updateParams(state, newParams); },
     onPause: () => {
       loop.toggle();
       pauseBtn.textContent = loop.isRunning() ? 'Pause' : 'Resume';
     },
     onReset: () => { state = resetAgents(state); },
+    onSave: () => { handleApfSave(getParams, saveBtn); },
   });
 
   initInteraction(canvas, () => state, {

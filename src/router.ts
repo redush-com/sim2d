@@ -1,9 +1,11 @@
-import type { SimulationInstance } from './simulations/types';
+import type { SimulationDefinition, SimulationInstance, SavedConfig } from './simulations/types';
 import { getAll, getById } from './simulations/registry';
 import { renderMainMenu } from './ui/main-menu';
 import { renderLoginScreen } from './ui/login-screen';
 import { renderProfileScreen } from './ui/profile-screen';
 import { authStore } from './auth/auth-store';
+import { resolveShareToken } from './db/shared-links';
+import { getSimulationById } from './db/saved-simulations';
 
 /** Parsed route with name and optional parameters */
 interface Route {
@@ -139,6 +141,7 @@ export class Router {
 
   /**
    * Navigates to a simulation by id. Creates layout and starts the sim.
+   * Optionally loads a saved configuration when savedConfigId is provided.
    * @param simId - simulation identifier
    * @param savedConfigId - optional saved config to load
    */
@@ -146,6 +149,11 @@ export class Router {
     const definition = getById(simId);
     if (!definition) {
       navigateTo('/');
+      return;
+    }
+
+    if (savedConfigId) {
+      this.loadAndStartWithConfig(definition, savedConfigId);
       return;
     }
 
@@ -157,13 +165,107 @@ export class Router {
   }
 
   /**
+   * Fetches a saved configuration and starts the simulation with it.
+   * @param definition - the simulation definition to create
+   * @param savedConfigId - id of the saved configuration to load
+   */
+  private async loadAndStartWithConfig(
+    definition: SimulationDefinition,
+    savedConfigId: string
+  ): Promise<void> {
+    this.showLoadingState();
+
+    const saved = await getSimulationById(savedConfigId);
+    if (!saved) {
+      this.showErrorState('Saved configuration not found.');
+      return;
+    }
+
+    const config: SavedConfig = {
+      params: saved.params,
+      sourceCode: saved.source_code ?? undefined,
+    };
+
+    this.container.innerHTML = '';
+    const { canvas, panel } = this.createSimulationLayout();
+
+    this.currentSim = definition.create(canvas, panel, config);
+    this.currentSim.start();
+  }
+
+  /**
    * Shows a shared simulation by resolving the share token.
+   * Fetches the shared link data from Supabase and starts the appropriate simulation.
    * @param token - share link token
    */
-  private showShared(token: string): void {
-    // Phase 5: resolve token from Supabase and load simulation
-    // For now, redirect to home
-    navigateTo('/');
+  private async showShared(token: string): Promise<void> {
+    this.showLoadingState();
+
+    const sim = await resolveShareToken(token);
+    if (!sim) {
+      this.showErrorState('This shared link is invalid or has expired.');
+      return;
+    }
+
+    const simId = sim.sim_type === 'builtin' ? sim.builtin_id : 'custom';
+    const definition = simId ? getById(simId) : null;
+    if (!definition) {
+      this.showErrorState('Simulation type not found.');
+      return;
+    }
+
+    const config: SavedConfig = {
+      params: sim.params,
+      sourceCode: sim.source_code ?? undefined,
+    };
+
+    this.container.innerHTML = '';
+    const { canvas, panel } = this.createSimulationLayout();
+
+    this.currentSim = definition.create(canvas, panel, config);
+    this.currentSim.start();
+  }
+
+  /**
+   * Displays a centered loading indicator in the container.
+   * Used while async operations (e.g. fetching shared links) are in progress.
+   */
+  private showLoadingState(): void {
+    this.container.innerHTML = '';
+    this.container.appendChild(this.createNavbar());
+    const content = document.createElement('div');
+    content.className = 'app-content';
+    content.style.display = 'flex';
+    content.style.alignItems = 'center';
+    content.style.justifyContent = 'center';
+    content.innerHTML = '<p style="color:#666;font-size:14px;">Loading&hellip;</p>';
+    this.container.appendChild(content);
+  }
+
+  /**
+   * Displays a centered error message with a "Back to Home" link.
+   * @param message - the error message to display
+   */
+  private showErrorState(message: string): void {
+    this.container.innerHTML = '';
+    this.container.appendChild(this.createNavbar());
+    const content = document.createElement('div');
+    content.className = 'app-content';
+    content.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
+
+    const msg = document.createElement('p');
+    msg.style.cssText = 'color:#cc6666;font-size:14px;';
+    msg.textContent = message;
+    content.appendChild(msg);
+
+    const link = document.createElement('a');
+    link.href = '/';
+    link.textContent = 'Back to Home';
+    link.style.cssText = 'color:#5588ff;font-size:13px;';
+    link.addEventListener('click', (e) => { e.preventDefault(); navigateTo('/'); });
+    content.appendChild(link);
+
+    this.container.appendChild(content);
   }
 
   /** Stops and destroys the current simulation if running */
@@ -279,6 +381,17 @@ export class Router {
         transition: color 0.15s, border-color 0.15s; backdrop-filter: blur(4px);
       }
       .sim-back-btn:hover { color: #ddd; border-color: #4a4a60; }
+      @media (max-width: 768px) {
+        .sim-layout { flex-direction: column; }
+        .sim-canvas-area { flex: none; height: 50vh; }
+        .sim-panel {
+          width: 100%; height: 50vh;
+          border-left: none; border-top: 1px solid #1a1a24;
+        }
+      }
+      @media (min-width: 769px) and (max-width: 1024px) {
+        .sim-panel { width: 240px; }
+      }
     `;
     this.container.appendChild(style);
 

@@ -6,6 +6,9 @@ import { createSimulation, tick, updateParams, resetAnts } from './simulation';
 import { createRenderer, render } from './renderers/renderer';
 import { buildPanel, type PanelControls } from '../../ui/panel-builder';
 import { createLoop } from '../../loop';
+import { authStore } from '../../auth/auth-store';
+import { saveSimulation } from '../../db/saved-simulations';
+import { navigateTo } from '../../router';
 
 /** Panel configuration for the ACO simulation */
 const ACO_PANEL_CONFIG = {
@@ -35,6 +38,7 @@ function buildAcoPanel(
     onParamsChange: (params: AcoParams) => void;
     onPause: () => void;
     onReset: () => void;
+    onSave?: () => void;
   }
 ): PanelControls {
   return buildPanel(
@@ -45,8 +49,34 @@ function buildAcoPanel(
       onParamsChange: (p) => callbacks.onParamsChange(p as unknown as AcoParams),
       onPause: callbacks.onPause,
       onReset: callbacks.onReset,
+      onSave: callbacks.onSave,
     }
   );
+}
+
+/**
+ * Handles saving the current ACO configuration to the database.
+ * Redirects to login if the user is not authenticated.
+ * @param getParams - function returning the current simulation parameters
+ * @param saveBtn - the save button element to show feedback on (may be null)
+ */
+async function handleAcoSave(
+  getParams: () => Record<string, number>,
+  saveBtn: HTMLButtonElement | null
+): Promise<void> {
+  if (!authStore.getState().user) { navigateTo('/login'); return; }
+  await saveSimulation({
+    title: 'Ant Colony Optimization',
+    description: ACO_PANEL_CONFIG.description,
+    sim_type: 'builtin',
+    builtin_id: 'ant-colony',
+    params: getParams(),
+    source_code: undefined,
+  });
+  if (saveBtn) {
+    saveBtn.textContent = 'Saved!';
+    setTimeout(() => { saveBtn.textContent = 'Save Configuration'; }, 1500);
+  }
 }
 
 /**
@@ -75,13 +105,14 @@ function createAcoSimulation(
     () => { render(renderer, state); }
   );
 
-  const { pauseBtn } = buildAcoPanel(panel, DEFAULT_PARAMS, {
+  const { pauseBtn, saveBtn, getParams } = buildAcoPanel(panel, DEFAULT_PARAMS, {
     onParamsChange: (newParams: AcoParams) => { state = updateParams(state, newParams); },
     onPause: () => {
       loop.toggle();
       pauseBtn.textContent = loop.isRunning() ? 'Pause' : 'Resume';
     },
     onReset: () => { state = resetAnts(state); },
+    onSave: () => { handleAcoSave(getParams, saveBtn); },
   });
 
   const handleResize = () => {
