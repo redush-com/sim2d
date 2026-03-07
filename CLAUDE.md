@@ -7,7 +7,7 @@ Before writing any code, perform a **system-analyst review** of the area being c
 The review must cover, in order:
 
 1. **Data required** — Which database tables, RPCs, API endpoints, or external data sources does this feature need? Read their schemas/types.
-2. **Existing connections** — Which hooks, services, utilities, and components already fetch or transform this data? Trace the data flow end-to-end (DB → hook → component).
+2. **Existing connections** — Which hooks, services, utilities, and components already fetch or transform this data? Trace the data flow end-to-end (DB → service → UI).
 3. **Reuse opportunities** — Identify existing types, helpers, UI components, and patterns that can be reused instead of duplicated (respect DRY).
 4. **Impact surface** — List every file and module that the change will touch or that depends on the code being changed.
 5. **Gaps & questions** — If anything is ambiguous, incomplete, or unclear after this review — **stop and ask clarifying questions** before writing any code.
@@ -29,34 +29,25 @@ Never assume the current structure or conventions from memory alone; always read
 
 ### Formatting
 
-- **Indentation**: Tabs (not spaces).
-- **Line endings**: LF (`\n`), never CRLF.
-- **Encoding**: UTF-8, no BOM.
-- **Max line width**: 100 characters.
-- **Quotes**: Single quotes for strings.
-- **Semicolons**: Always.
-- **Trailing commas**: Always (ES5+).
-- **Final newline**: Every file ends with a newline.
+- **Indentation**: Tabs (not spaces). **Line endings**: LF. **Encoding**: UTF-8.
+- **Max line width**: 100 characters. **Quotes**: Single. **Semicolons**: Always. **Trailing commas**: Always.
 - Formatting is enforced by **Prettier** (`.prettierrc`). Run `npm run format` to auto-fix.
 
 ### Linting
 
 - **ESLint** with `typescript-eslint` strict + stylistic configs.
-- **No `any`**: Use `unknown` and narrow with type guards.
-- **Explicit return types**: All exported functions must declare return types. Internal helpers may rely on inference.
-- **Consistent type imports**: Use `import type { X }` for type-only imports.
-- **No `var`**: Use `const` by default, `let` only when reassignment is needed.
-- **Strict equality**: Always `===` / `!==`, never `==` / `!=`.
+- **No `any`**: Use `unknown` + type guards. **Consistent type imports**: `import type { X }`.
+- **Explicit return types** on exported functions. **No `var`**. **Strict equality** (`===`/`!==`).
 - Run `npm run lint` to check, `npm run lint:fix` to auto-fix.
 
 ### Documentation
 
-- **TypeScript/JavaScript:** Every new function/method must have a JSDoc comment describing why it exists, its `@param` entries, and `@returns`.
+- Every new function/method must have a JSDoc comment with `@param` and `@returns`.
 
 ### Types
 
-- **Supabase query results:** `@supabase/supabase-js` v2 automatically infers return types from `.select()` strings based on the `Database` type. Do **not** cast query results with `as unknown as X` or `as Record<string, unknown>` — this breaks the type link between the schema and the code. Instead, use the Supabase-inferred types directly. If the inferred type is insufficient, narrow it with a type guard or a single safe `as` cast to a `Pick`/`Omit`-derived type.
-- **No `any`**: Use `unknown` + type guards, or generic type parameters.
+- **Supabase**: Use inferred types from `.select()`, never `as unknown as X`.
+- **No `any`**: Use `unknown` + type guards or generics.
 - **Prefer interfaces** for object shapes, `type` for unions/intersections/mapped types.
 
 ## Architecture
@@ -76,70 +67,91 @@ src/
   ui/             # DOM-based UI components (menu, panels, modals)
 ```
 
-### Module Boundaries
+### Module Boundaries (enforced by `dependency-cruiser`)
 
-- **Simulations are self-contained**: Each simulation folder registers itself via side-effect import. No cross-simulation imports except shared utilities (fitness functions reuse is OK).
-- **Auth module**: Only `auth-store.ts` is imported by UI code. Never import `supabase-client` directly from UI — go through service/store layers.
-- **DB module**: Provides async CRUD functions. UI calls these, never constructs Supabase queries directly.
-- **Rendering**: Shared utilities (`clearCanvas`, `drawGrid`, etc.) live in `rendering/shared.ts`. Simulation-specific renderers live in their own `renderers/` folder.
+- **Simulations are self-contained**: No cross-simulation imports (except `pso/fitness.ts` whitelist).
+- **Auth module**: Only `auth-store.ts` and `auth-service.ts` are imported by UI. Never import `supabase-client` from UI.
+- **DB module**: Provides async CRUD. UI calls these, never constructs Supabase queries directly.
+- **Navigation**: Use `navigateTo()` from `src/navigation.ts` (not from router directly).
 
 ### Adding a New Simulation
 
-1. Create folder `src/simulations/<name>/`
-2. Create `types.ts`, `config.ts`, `simulation.ts`, `renderers/`, `index.ts`
-3. In `index.ts`: import `register` from `../registry`, call `register({ id, title, description, tags, create })`
-4. In `src/main.ts`: add `import './simulations/<name>/index';`
-5. The simulation card appears automatically on the main menu.
+1. Create `src/simulations/<name>/` with `types.ts`, `config.ts`, `simulation.ts`, `renderers/`, `index.ts`
+2. In `index.ts`: `register({ id, title, description, tags, create })`
+3. In `src/main.ts`: add `import './simulations/<name>/index';`
+4. Write tests for simulation logic in `simulation.test.ts`
+5. Run `npm run check` and `npm test`
+
+### Adding Any Feature
+
+1. System-analyst review (read existing code first)
+2. Create feature branch: `feat/<name>`
+3. Write failing tests (TDD)
+4. Implement minimal code to pass tests
+5. Run `npm run check` + `npm test` + `npm run build`
+6. Commit with conventional format, push, create PR
 
 ## Design Principles
 
-### DRY (Don't Repeat Yourself)
-
-- If a piece of logic, markup, or configuration appears **more than 2 times**, extract it into a shared helper, utility function, or constant.
-- Before writing new code, search the codebase for existing abstractions that already solve the same problem.
+### DRY — If logic appears >2 times, extract to a shared helper.
 
 ### SOLID
 
-- **Single Responsibility:** Each module, class, function, or component must have exactly one reason to change. If a description requires "and", split it.
-- **Open/Closed:** Design modules so new behavior can be added via extension (new simulations, new renderers) rather than modifying existing code.
-- **Liskov Substitution:** Subtypes and interface implementations must be fully interchangeable with their base types without breaking callers.
-- **Interface Segregation:** Keep interfaces and prop types small and focused. No consumer should depend on methods or props it does not use.
-- **Dependency Inversion:** High-level modules must not import low-level modules directly. Depend on abstractions (types, interfaces) instead.
+- **Single Responsibility**: One reason to change per module/function.
+- **Open/Closed**: Extend via new simulations/renderers, don't modify existing.
+- **Liskov Substitution**: Subtypes fully interchangeable with base types.
+- **Interface Segregation**: Small, focused interfaces.
+- **Dependency Inversion**: Depend on abstractions (types, interfaces).
 
 ## Size & Complexity Limits
 
-### Function / Method Length
-
-- A single function or method must not exceed **50 lines** of logic (excluding blank lines and comments). If it does, refactor into smaller, well-named helper functions.
-
-### File Length
-
-- A single TypeScript file should not exceed **250 lines**. If it grows beyond this, extract into multiple files with clear responsibilities.
-
-### SQL Function Length
-
-- A single SQL function / RPC must not exceed **80 lines** of body logic. Extract reusable CTEs or split into helper functions when approaching this limit.
-
-### Files Per Folder
-
-- A single folder must not contain more than **15 files**. When a folder exceeds this limit, group related files into sub-folders with clear, descriptive names.
-
-### Cyclomatic Complexity
-
-- A single function should not exceed **10** cyclomatic complexity (branches). Flatten deeply nested conditionals with early returns, guard clauses, or strategy patterns.
+- **Function**: max **50 lines** of logic.
+- **File**: max **250 lines**.
+- **SQL function**: max **80 lines**.
+- **Folder**: max **15 files** (split into sub-folders).
+- **Cyclomatic complexity**: max **10** per function (use early returns, guard clauses).
 
 ## Quality Gates (Pre-commit)
 
-All checks run automatically via **Husky** + **lint-staged** on every commit:
+Husky + lint-staged runs on every commit: **Prettier** → **ESLint** → staged files only.
 
-1. **Prettier** — formats staged `.ts`, `.js`, `.json`, `.md`, `.yml`, `.css`, `.html` files
-2. **ESLint** — lints and auto-fixes staged `.ts`, `.js` files
-3. **TypeScript** — `tsc --noEmit` (type-check only, no output)
+Manual full check: `npm run check` (typecheck + lint + format + architecture).
 
-Manual full check: `npm run check` (runs typecheck + lint + format check).
+### CI/CD (GitHub Actions on every PR)
 
-### CI/CD Expectations
+- `quality`: typecheck + eslint + prettier + dependency-cruiser
+- `test`: vitest (145+ unit tests)
+- `build`: production build
+- `e2e`: Playwright chromium tests
 
-- Every PR must pass `npm run check` before merge.
-- Tests must pass: `npm test`.
-- Build must succeed: `npm run build`.
+## Agentic Workflows
+
+### Task Scoping
+
+- Tasks must reference **exact files** and **expected behavior**: not "fix auth" but "fix login redirect in `src/auth/auth-service.ts` — after OAuth, user should land on `/` instead of staying on `/login`".
+- Every task must include a **verification step**: tests pass, build succeeds, behavior confirmed.
+- If a task takes >40k tokens, it's too broad — break it down.
+
+### Commit Format
+
+```
+type(scope): brief description
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+```
+
+Types: `feat`, `fix`, `refactor`, `test`, `docs`, `perf`. Scope: module or feature name.
+
+### PR Workflow
+
+1. Create feature branch from `main`
+2. Implement with TDD (tests first)
+3. Verify: `npm run check && npm test && npm run build`
+4. Push branch, create PR with verification checklist
+5. CI must pass before merge
+
+### Context Management
+
+- Use subagents for investigation to keep main context clean.
+- Use `/compact` between unrelated tasks.
+- CLAUDE.md = universal rules. `.claude/rules/` = path-specific rules. Auto memory = learned patterns.
