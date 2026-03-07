@@ -9,8 +9,8 @@ import { getSimulationById } from './db/saved-simulations';
 
 /** Parsed route with name and optional parameters */
 interface Route {
-  name: string;
-  params: Record<string, string>;
+	name: string;
+	params: Record<string, string>;
 }
 
 /**
@@ -18,8 +18,8 @@ interface Route {
  * @param path - the URL path to navigate to (e.g. '/sim/boids')
  */
 export function navigateTo(path: string): void {
-  history.pushState(null, '', path);
-  window.dispatchEvent(new PopStateEvent('popstate'));
+	history.pushState(null, '', path);
+	window.dispatchEvent(new PopStateEvent('popstate'));
 }
 
 /**
@@ -27,263 +27,267 @@ export function navigateTo(path: string): void {
  * Handles simulation lifecycle and auth-guarded routes.
  */
 export class Router {
-  private container: HTMLElement;
-  private currentSim: SimulationInstance | null = null;
+	private container: HTMLElement;
+	private currentSim: SimulationInstance | null = null;
 
-  /**
-   * @param container - root DOM element to render into
-   */
-  constructor(container: HTMLElement) {
-    this.container = container;
-    window.addEventListener('popstate', () => this.handleRoute());
-    authStore.subscribe(() => this.updateNavbar());
-  }
+	/**
+	 * @param container - root DOM element to render into
+	 */
+	constructor(container: HTMLElement) {
+		this.container = container;
+		window.addEventListener('popstate', () => this.handleRoute());
+		authStore.subscribe(() => this.updateNavbar());
+	}
 
-  /** Parses the current URL path and navigates to the matching screen */
-  handleRoute(): void {
-    const route = this.parsePath();
+	/** Parses the current URL path and navigates to the matching screen */
+	handleRoute(): void {
+		const route = this.parsePath();
 
-    this.destroyCurrentSim();
+		this.destroyCurrentSim();
 
-    switch (route.name) {
-      case 'login':
-        this.showLogin();
-        break;
-      case 'profile':
-        if (!this.requireAuth()) return;
-        this.showProfile();
-        break;
-      case 'sim':
-        this.showSimulation(route.params['id']);
-        break;
-      case 'editor':
-        if (!this.requireAuth()) return;
-        this.showSimulation('custom', route.params['id']);
-        break;
-      case 'shared':
-        this.showShared(route.params['token']);
-        break;
-      default:
-        this.showMenu();
-        break;
-    }
-  }
+		switch (route.name) {
+			case 'login':
+				this.showLogin();
+				break;
+			case 'profile':
+				if (!this.requireAuth()) return;
+				this.showProfile();
+				break;
+			case 'sim':
+				this.showSimulation(route.params['id']);
+				break;
+			case 'editor':
+				if (!this.requireAuth()) return;
+				this.showSimulation('custom', route.params['id']);
+				break;
+			case 'shared':
+				this.showShared(route.params['token']);
+				break;
+			default:
+				this.showMenu();
+				break;
+		}
+	}
 
-  /**
-   * Parses window.location.pathname into a Route object.
-   * @returns parsed route with name and params
-   */
-  private parsePath(): Route {
-    const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
-    const parts = path.split('/').filter(Boolean);
+	/**
+	 * Parses window.location.pathname into a Route object.
+	 * @returns parsed route with name and params
+	 */
+	private parsePath(): Route {
+		const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
+		const parts = path.split('/').filter(Boolean);
 
-    if (parts[0] === 'sim' && parts[1]) return { name: 'sim', params: { id: parts[1] } };
-    if (parts[0] === 'editor') return { name: 'editor', params: { id: parts[1] || '' } };
-    if (parts[0] === 'shared' && parts[1]) return { name: 'shared', params: { token: parts[1] } };
-    if (parts[0] === 'login') return { name: 'login', params: {} };
-    if (parts[0] === 'profile') return { name: 'profile', params: {} };
-    return { name: 'home', params: {} };
-  }
+		if (parts[0] === 'sim' && parts[1]) return { name: 'sim', params: { id: parts[1] } };
+		if (parts[0] === 'editor') return { name: 'editor', params: { id: parts[1] || '' } };
+		if (parts[0] === 'shared' && parts[1]) return { name: 'shared', params: { token: parts[1] } };
+		if (parts[0] === 'login') return { name: 'login', params: {} };
+		if (parts[0] === 'profile') return { name: 'profile', params: {} };
+		return { name: 'home', params: {} };
+	}
 
-  /**
-   * Checks if user is authenticated. Redirects to login if not.
-   * @returns true if authenticated
-   */
-  private requireAuth(): boolean {
-    if (authStore.getState().user) return true;
-    navigateTo('/login');
-    return false;
-  }
+	/**
+	 * Checks if user is authenticated. Redirects to login if not.
+	 * @returns true if authenticated
+	 */
+	private requireAuth(): boolean {
+		if (authStore.getState().user) return true;
+		navigateTo('/login');
+		return false;
+	}
 
-  /** Updates the navbar auth state without re-rendering the whole page */
-  private updateNavbar(): void {
-    const navbar = this.container.querySelector('.app-navbar');
-    if (navbar) {
-      const authArea = navbar.querySelector('.navbar-auth');
-      if (authArea) {
-        authArea.innerHTML = '';
-        authArea.appendChild(this.createAuthButton());
-      }
-    }
-  }
+	/** Updates the navbar auth state without re-rendering the whole page */
+	private updateNavbar(): void {
+		const navbar = this.container.querySelector('.app-navbar');
+		if (navbar) {
+			const authArea = navbar.querySelector('.navbar-auth');
+			if (authArea) {
+				authArea.innerHTML = '';
+				authArea.appendChild(this.createAuthButton());
+			}
+		}
+	}
 
-  /** Renders the main menu with simulation cards */
-  private showMenu(): void {
-    this.container.innerHTML = '';
-    this.container.appendChild(this.createNavbar());
-    const content = document.createElement('div');
-    content.className = 'app-content';
-    this.container.appendChild(content);
-    renderMainMenu(content, getAll(), (id) => {
-      navigateTo(`/sim/${id}`);
-    });
-  }
+	/** Renders the main menu with simulation cards */
+	private showMenu(): void {
+		this.container.innerHTML = '';
+		this.container.appendChild(this.createNavbar());
+		const content = document.createElement('div');
+		content.className = 'app-content';
+		this.container.appendChild(content);
+		renderMainMenu(content, getAll(), (id) => {
+			navigateTo(`/sim/${id}`);
+		});
+	}
 
-  /** Renders the login screen */
-  private showLogin(): void {
-    this.container.innerHTML = '';
-    this.container.appendChild(this.createNavbar());
-    const content = document.createElement('div');
-    content.className = 'app-content';
-    this.container.appendChild(content);
-    renderLoginScreen(content);
-  }
+	/** Renders the login screen */
+	private showLogin(): void {
+		this.container.innerHTML = '';
+		this.container.appendChild(this.createNavbar());
+		const content = document.createElement('div');
+		content.className = 'app-content';
+		this.container.appendChild(content);
+		renderLoginScreen(content);
+	}
 
-  /** Renders the user profile screen */
-  private showProfile(): void {
-    this.container.innerHTML = '';
-    this.container.appendChild(this.createNavbar());
-    const content = document.createElement('div');
-    content.className = 'app-content';
-    this.container.appendChild(content);
-    renderProfileScreen(content);
-  }
+	/** Renders the user profile screen */
+	private showProfile(): void {
+		this.container.innerHTML = '';
+		this.container.appendChild(this.createNavbar());
+		const content = document.createElement('div');
+		content.className = 'app-content';
+		this.container.appendChild(content);
+		renderProfileScreen(content);
+	}
 
-  /**
-   * Navigates to a simulation by id. Creates layout and starts the sim.
-   * Optionally loads a saved configuration when savedConfigId is provided.
-   * @param simId - simulation identifier
-   * @param savedConfigId - optional saved config to load
-   */
-  private showSimulation(simId: string, savedConfigId?: string): void {
-    const definition = getById(simId);
-    if (!definition) {
-      navigateTo('/');
-      return;
-    }
+	/**
+	 * Navigates to a simulation by id. Creates layout and starts the sim.
+	 * Optionally loads a saved configuration when savedConfigId is provided.
+	 * @param simId - simulation identifier
+	 * @param savedConfigId - optional saved config to load
+	 */
+	private showSimulation(simId: string, savedConfigId?: string): void {
+		const definition = getById(simId);
+		if (!definition) {
+			navigateTo('/');
+			return;
+		}
 
-    if (savedConfigId) {
-      this.loadAndStartWithConfig(definition, savedConfigId);
-      return;
-    }
+		if (savedConfigId) {
+			this.loadAndStartWithConfig(definition, savedConfigId);
+			return;
+		}
 
-    this.container.innerHTML = '';
-    const { canvas, panel } = this.createSimulationLayout();
+		this.container.innerHTML = '';
+		const { canvas, panel } = this.createSimulationLayout();
 
-    this.currentSim = definition.create(canvas, panel);
-    this.currentSim.start();
-  }
+		this.currentSim = definition.create(canvas, panel);
+		this.currentSim.start();
+	}
 
-  /**
-   * Fetches a saved configuration and starts the simulation with it.
-   * @param definition - the simulation definition to create
-   * @param savedConfigId - id of the saved configuration to load
-   */
-  private async loadAndStartWithConfig(
-    definition: SimulationDefinition,
-    savedConfigId: string
-  ): Promise<void> {
-    this.showLoadingState();
+	/**
+	 * Fetches a saved configuration and starts the simulation with it.
+	 * @param definition - the simulation definition to create
+	 * @param savedConfigId - id of the saved configuration to load
+	 */
+	private async loadAndStartWithConfig(
+		definition: SimulationDefinition,
+		savedConfigId: string,
+	): Promise<void> {
+		this.showLoadingState();
 
-    const saved = await getSimulationById(savedConfigId);
-    if (!saved) {
-      this.showErrorState('Saved configuration not found.');
-      return;
-    }
+		const saved = await getSimulationById(savedConfigId);
+		if (!saved) {
+			this.showErrorState('Saved configuration not found.');
+			return;
+		}
 
-    const config: SavedConfig = {
-      params: saved.params,
-      sourceCode: saved.source_code ?? undefined,
-    };
+		const config: SavedConfig = {
+			params: saved.params,
+			sourceCode: saved.source_code ?? undefined,
+		};
 
-    this.container.innerHTML = '';
-    const { canvas, panel } = this.createSimulationLayout();
+		this.container.innerHTML = '';
+		const { canvas, panel } = this.createSimulationLayout();
 
-    this.currentSim = definition.create(canvas, panel, config);
-    this.currentSim.start();
-  }
+		this.currentSim = definition.create(canvas, panel, config);
+		this.currentSim.start();
+	}
 
-  /**
-   * Shows a shared simulation by resolving the share token.
-   * Fetches the shared link data from Supabase and starts the appropriate simulation.
-   * @param token - share link token
-   */
-  private async showShared(token: string): Promise<void> {
-    this.showLoadingState();
+	/**
+	 * Shows a shared simulation by resolving the share token.
+	 * Fetches the shared link data from Supabase and starts the appropriate simulation.
+	 * @param token - share link token
+	 */
+	private async showShared(token: string): Promise<void> {
+		this.showLoadingState();
 
-    const sim = await resolveShareToken(token);
-    if (!sim) {
-      this.showErrorState('This shared link is invalid or has expired.');
-      return;
-    }
+		const sim = await resolveShareToken(token);
+		if (!sim) {
+			this.showErrorState('This shared link is invalid or has expired.');
+			return;
+		}
 
-    const simId = sim.sim_type === 'builtin' ? sim.builtin_id : 'custom';
-    const definition = simId ? getById(simId) : null;
-    if (!definition) {
-      this.showErrorState('Simulation type not found.');
-      return;
-    }
+		const simId = sim.sim_type === 'builtin' ? sim.builtin_id : 'custom';
+		const definition = simId ? getById(simId) : null;
+		if (!definition) {
+			this.showErrorState('Simulation type not found.');
+			return;
+		}
 
-    const config: SavedConfig = {
-      params: sim.params,
-      sourceCode: sim.source_code ?? undefined,
-    };
+		const config: SavedConfig = {
+			params: sim.params,
+			sourceCode: sim.source_code ?? undefined,
+		};
 
-    this.container.innerHTML = '';
-    const { canvas, panel } = this.createSimulationLayout();
+		this.container.innerHTML = '';
+		const { canvas, panel } = this.createSimulationLayout();
 
-    this.currentSim = definition.create(canvas, panel, config);
-    this.currentSim.start();
-  }
+		this.currentSim = definition.create(canvas, panel, config);
+		this.currentSim.start();
+	}
 
-  /**
-   * Displays a centered loading indicator in the container.
-   * Used while async operations (e.g. fetching shared links) are in progress.
-   */
-  private showLoadingState(): void {
-    this.container.innerHTML = '';
-    this.container.appendChild(this.createNavbar());
-    const content = document.createElement('div');
-    content.className = 'app-content';
-    content.style.display = 'flex';
-    content.style.alignItems = 'center';
-    content.style.justifyContent = 'center';
-    content.innerHTML = '<p style="color:#666;font-size:14px;">Loading&hellip;</p>';
-    this.container.appendChild(content);
-  }
+	/**
+	 * Displays a centered loading indicator in the container.
+	 * Used while async operations (e.g. fetching shared links) are in progress.
+	 */
+	private showLoadingState(): void {
+		this.container.innerHTML = '';
+		this.container.appendChild(this.createNavbar());
+		const content = document.createElement('div');
+		content.className = 'app-content';
+		content.style.display = 'flex';
+		content.style.alignItems = 'center';
+		content.style.justifyContent = 'center';
+		content.innerHTML = '<p style="color:#666;font-size:14px;">Loading&hellip;</p>';
+		this.container.appendChild(content);
+	}
 
-  /**
-   * Displays a centered error message with a "Back to Home" link.
-   * @param message - the error message to display
-   */
-  private showErrorState(message: string): void {
-    this.container.innerHTML = '';
-    this.container.appendChild(this.createNavbar());
-    const content = document.createElement('div');
-    content.className = 'app-content';
-    content.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
+	/**
+	 * Displays a centered error message with a "Back to Home" link.
+	 * @param message - the error message to display
+	 */
+	private showErrorState(message: string): void {
+		this.container.innerHTML = '';
+		this.container.appendChild(this.createNavbar());
+		const content = document.createElement('div');
+		content.className = 'app-content';
+		content.style.cssText =
+			'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
 
-    const msg = document.createElement('p');
-    msg.style.cssText = 'color:#cc6666;font-size:14px;';
-    msg.textContent = message;
-    content.appendChild(msg);
+		const msg = document.createElement('p');
+		msg.style.cssText = 'color:#cc6666;font-size:14px;';
+		msg.textContent = message;
+		content.appendChild(msg);
 
-    const link = document.createElement('a');
-    link.href = '/';
-    link.textContent = 'Back to Home';
-    link.style.cssText = 'color:#5588ff;font-size:13px;';
-    link.addEventListener('click', (e) => { e.preventDefault(); navigateTo('/'); });
-    content.appendChild(link);
+		const link = document.createElement('a');
+		link.href = '/';
+		link.textContent = 'Back to Home';
+		link.style.cssText = 'color:#5588ff;font-size:13px;';
+		link.addEventListener('click', (e) => {
+			e.preventDefault();
+			navigateTo('/');
+		});
+		content.appendChild(link);
 
-    this.container.appendChild(content);
-  }
+		this.container.appendChild(content);
+	}
 
-  /** Stops and destroys the current simulation if running */
-  private destroyCurrentSim(): void {
-    if (this.currentSim) {
-      this.currentSim.stop();
-      this.currentSim.destroy();
-      this.currentSim = null;
-    }
-  }
+	/** Stops and destroys the current simulation if running */
+	private destroyCurrentSim(): void {
+		if (this.currentSim) {
+			this.currentSim.stop();
+			this.currentSim.destroy();
+			this.currentSim = null;
+		}
+	}
 
-  /**
-   * Creates the top navigation bar with logo and auth controls.
-   * @returns navbar DOM element
-   */
-  private createNavbar(): HTMLElement {
-    const style = document.createElement('style');
-    style.textContent = `
+	/**
+	 * Creates the top navigation bar with logo and auth controls.
+	 * @returns navbar DOM element
+	 */
+	private createNavbar(): HTMLElement {
+		const style = document.createElement('style');
+		style.textContent = `
       .app-navbar {
         display: flex; align-items: center; justify-content: space-between;
         padding: 0 20px; height: 48px;
@@ -307,66 +311,75 @@ export class Router {
       }
       .app-content { height: calc(100vh - 48px); overflow-y: auto; }
     `;
-    this.container.appendChild(style);
+		this.container.appendChild(style);
 
-    const nav = document.createElement('nav');
-    nav.className = 'app-navbar';
+		const nav = document.createElement('nav');
+		nav.className = 'app-navbar';
 
-    const logo = document.createElement('a');
-    logo.className = 'navbar-logo';
-    logo.href = '/';
-    logo.textContent = 'sim2d';
-    logo.addEventListener('click', (e) => { e.preventDefault(); navigateTo('/'); });
-    nav.appendChild(logo);
+		const logo = document.createElement('a');
+		logo.className = 'navbar-logo';
+		logo.href = '/';
+		logo.textContent = 'sim2d';
+		logo.addEventListener('click', (e) => {
+			e.preventDefault();
+			navigateTo('/');
+		});
+		nav.appendChild(logo);
 
-    const authArea = document.createElement('div');
-    authArea.className = 'navbar-auth';
-    authArea.appendChild(this.createAuthButton());
-    nav.appendChild(authArea);
+		const authArea = document.createElement('div');
+		authArea.className = 'navbar-auth';
+		authArea.appendChild(this.createAuthButton());
+		nav.appendChild(authArea);
 
-    return nav;
-  }
+		return nav;
+	}
 
-  /**
-   * Creates the auth button (login or avatar+menu) based on auth state.
-   * @returns DOM element for auth controls
-   */
-  private createAuthButton(): HTMLElement {
-    const { user } = authStore.getState();
+	/**
+	 * Creates the auth button (login or avatar+menu) based on auth state.
+	 * @returns DOM element for auth controls
+	 */
+	private createAuthButton(): HTMLElement {
+		const { user } = authStore.getState();
 
-    if (user) {
-      const profileBtn = document.createElement('button');
-      profileBtn.className = 'navbar-btn';
-      profileBtn.textContent = 'My Simulations';
-      profileBtn.addEventListener('click', () => { navigateTo('/profile'); });
+		if (user) {
+			const profileBtn = document.createElement('button');
+			profileBtn.className = 'navbar-btn';
+			profileBtn.textContent = 'My Simulations';
+			profileBtn.addEventListener('click', () => {
+				navigateTo('/profile');
+			});
 
-      const avatar = document.createElement('img');
-      avatar.className = 'navbar-avatar';
-      avatar.src = user.user_metadata?.['avatar_url'] || '';
-      avatar.alt = user.user_metadata?.['full_name'] || 'User';
-      avatar.onerror = () => { avatar.style.display = 'none'; };
+			const avatar = document.createElement('img');
+			avatar.className = 'navbar-avatar';
+			avatar.src = user.user_metadata?.['avatar_url'] || '';
+			avatar.alt = user.user_metadata?.['full_name'] || 'User';
+			avatar.onerror = () => {
+				avatar.style.display = 'none';
+			};
 
-      const container = document.createElement('div');
-      container.className = 'navbar-auth';
-      container.appendChild(profileBtn);
-      container.appendChild(avatar);
-      return container;
-    }
+			const container = document.createElement('div');
+			container.className = 'navbar-auth';
+			container.appendChild(profileBtn);
+			container.appendChild(avatar);
+			return container;
+		}
 
-    const loginBtn = document.createElement('button');
-    loginBtn.className = 'navbar-btn';
-    loginBtn.textContent = 'Sign In';
-    loginBtn.addEventListener('click', () => { navigateTo('/login'); });
-    return loginBtn;
-  }
+		const loginBtn = document.createElement('button');
+		loginBtn.className = 'navbar-btn';
+		loginBtn.textContent = 'Sign In';
+		loginBtn.addEventListener('click', () => {
+			navigateTo('/login');
+		});
+		return loginBtn;
+	}
 
-  /**
-   * Creates the simulation page layout: back button, canvas, and side panel.
-   * @returns references to canvas and panel elements
-   */
-  private createSimulationLayout(): { canvas: HTMLCanvasElement; panel: HTMLElement } {
-    const style = document.createElement('style');
-    style.textContent = `
+	/**
+	 * Creates the simulation page layout: back button, canvas, and side panel.
+	 * @returns references to canvas and panel elements
+	 */
+	private createSimulationLayout(): { canvas: HTMLCanvasElement; panel: HTMLElement } {
+		const style = document.createElement('style');
+		style.textContent = `
       .sim-layout { display: flex; height: 100vh; }
       .sim-canvas-area { flex: 1; position: relative; }
       .sim-canvas-area canvas { width: 100%; height: 100%; display: block; }
@@ -393,30 +406,32 @@ export class Router {
         .sim-panel { width: 240px; }
       }
     `;
-    this.container.appendChild(style);
+		this.container.appendChild(style);
 
-    const layout = document.createElement('div');
-    layout.className = 'sim-layout';
+		const layout = document.createElement('div');
+		layout.className = 'sim-layout';
 
-    const canvasArea = document.createElement('div');
-    canvasArea.className = 'sim-canvas-area';
+		const canvasArea = document.createElement('div');
+		canvasArea.className = 'sim-canvas-area';
 
-    const backBtn = document.createElement('button');
-    backBtn.className = 'sim-back-btn';
-    backBtn.textContent = 'Back';
-    backBtn.addEventListener('click', () => { navigateTo('/'); });
-    canvasArea.appendChild(backBtn);
+		const backBtn = document.createElement('button');
+		backBtn.className = 'sim-back-btn';
+		backBtn.textContent = 'Back';
+		backBtn.addEventListener('click', () => {
+			navigateTo('/');
+		});
+		canvasArea.appendChild(backBtn);
 
-    const canvas = document.createElement('canvas');
-    canvasArea.appendChild(canvas);
+		const canvas = document.createElement('canvas');
+		canvasArea.appendChild(canvas);
 
-    const panel = document.createElement('div');
-    panel.className = 'sim-panel';
+		const panel = document.createElement('div');
+		panel.className = 'sim-panel';
 
-    layout.appendChild(canvasArea);
-    layout.appendChild(panel);
-    this.container.appendChild(layout);
+		layout.appendChild(canvasArea);
+		layout.appendChild(panel);
+		this.container.appendChild(layout);
 
-    return { canvas, panel };
-  }
+		return { canvas, panel };
+	}
 }

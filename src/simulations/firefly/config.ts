@@ -2,17 +2,17 @@ import type { FireflyParams } from './types';
 
 /** Default Firefly Algorithm parameters tuned for visually appealing optimization behavior */
 export const DEFAULT_PARAMS: FireflyParams = {
-  attractiveness: 1.0,
-  lightAbsorption: 0.2,
-  randomness: 0.3,
-  fireflyCount: 40,
-  functionIndex: 0,
+	attractiveness: 1.0,
+	lightAbsorption: 0.2,
+	randomness: 0.3,
+	fireflyCount: 40,
+	functionIndex: 0,
 };
 
 /** Search space boundaries for firefly positions */
 export const SEARCH_BOUNDS = {
-  min: -5.12,
-  max: 5.12,
+	min: -5.12,
+	max: 5.12,
 } as const;
 
 /** Range of the search space */

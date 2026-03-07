@@ -13,13 +13,13 @@ import './simulations/custom/index';
  * Entry point: initializes auth, creates the router, and handles initial route.
  */
 function main(): void {
-  const container = document.getElementById('app');
-  if (!container) throw new Error('App container not found');
+	const container = document.getElementById('app');
+	if (!container) throw new Error('App container not found');
 
-  initAuth();
+	initAuth();
 
-  const router = new Router(container);
-  router.handleRoute();
+	const router = new Router(container);
+	router.handleRoute();
 }
 
 main();

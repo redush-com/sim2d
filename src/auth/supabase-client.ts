@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string || '';
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string || '';
+const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL as string) || '';
+const SUPABASE_PUBLISHABLE_KEY = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string) || '';
 
 /**
  * Singleton Supabase client for auth and database operations.
@@ -14,5 +14,5 @@ export const supabase: SupabaseClient = createClient(SUPABASE_URL, SUPABASE_PUBL
  * @returns whether the Supabase client has a URL configured
  */
 export function isSupabaseConfigured(): boolean {
-  return SUPABASE_URL.length > 0 && SUPABASE_PUBLISHABLE_KEY.length > 0;
+	return SUPABASE_URL.length > 0 && SUPABASE_PUBLISHABLE_KEY.length > 0;
 }

@@ -2,18 +2,18 @@ import type { PsoParams } from './types';
 
 /** Default PSO parameters tuned for visually appealing optimization behavior */
 export const DEFAULT_PARAMS: PsoParams = {
-  inertiaWeight: 0.7,
-  cognitiveWeight: 1.5,
-  socialWeight: 1.5,
-  particleCount: 30,
-  maxSpeed: 5,
-  functionIndex: 0,
+	inertiaWeight: 0.7,
+	cognitiveWeight: 1.5,
+	socialWeight: 1.5,
+	particleCount: 30,
+	maxSpeed: 5,
+	functionIndex: 0,
 };
 
 /** Search space boundaries for particle positions */
 export const SEARCH_BOUNDS = {
-  min: -5.12,
-  max: 5.12,
+	min: -5.12,
+	max: 5.12,
 } as const;
 
 /** Range of the search space */

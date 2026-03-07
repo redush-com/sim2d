@@ -5,12 +5,12 @@ import { createShareLink, buildShareUrl } from '../db/shared-links';
  * @returns the existing or newly created style element
  */
 function ensureStyles(): HTMLStyleElement {
-  const existing = document.getElementById('share-modal-styles') as HTMLStyleElement | null;
-  if (existing) return existing;
+	const existing = document.getElementById('share-modal-styles') as HTMLStyleElement | null;
+	if (existing) return existing;
 
-  const style = document.createElement('style');
-  style.id = 'share-modal-styles';
-  style.textContent = `
+	const style = document.createElement('style');
+	style.id = 'share-modal-styles';
+	style.textContent = `
     .share-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.6);
       display: flex; align-items: center; justify-content: center;
@@ -40,8 +40,8 @@ function ensureStyles(): HTMLStyleElement {
     .share-error { color: #cc6666; font-size: 12px; margin-bottom: 12px; }
     .share-footer { display: flex; justify-content: flex-end; margin-top: 8px; }
   `;
-  document.head.appendChild(style);
-  return style;
+	document.head.appendChild(style);
+	return style;
 }
 
 /**
@@ -51,54 +51,54 @@ function ensureStyles(): HTMLStyleElement {
  * @returns the modal card element
  */
 function buildModalCard(simulationId: string, onClose: () => void): HTMLElement {
-  const card = document.createElement('div');
-  card.className = 'share-modal';
+	const card = document.createElement('div');
+	card.className = 'share-modal';
 
-  const title = document.createElement('div');
-  title.className = 'share-title';
-  title.textContent = 'Share Simulation';
-  card.appendChild(title);
+	const title = document.createElement('div');
+	title.className = 'share-title';
+	title.textContent = 'Share Simulation';
+	card.appendChild(title);
 
-  const urlRow = document.createElement('div');
-  urlRow.className = 'share-url-row';
-  urlRow.style.display = 'none';
+	const urlRow = document.createElement('div');
+	urlRow.className = 'share-url-row';
+	urlRow.style.display = 'none';
 
-  const urlInput = document.createElement('input');
-  urlInput.className = 'share-url-input';
-  urlInput.readOnly = true;
+	const urlInput = document.createElement('input');
+	urlInput.className = 'share-url-input';
+	urlInput.readOnly = true;
 
-  const copyBtn = document.createElement('button');
-  copyBtn.className = 'share-btn';
-  copyBtn.textContent = 'Copy';
-  copyBtn.addEventListener('click', () => handleCopy(urlInput, copyBtn));
+	const copyBtn = document.createElement('button');
+	copyBtn.className = 'share-btn';
+	copyBtn.textContent = 'Copy';
+	copyBtn.addEventListener('click', () => handleCopy(urlInput, copyBtn));
 
-  urlRow.appendChild(urlInput);
-  urlRow.appendChild(copyBtn);
-  card.appendChild(urlRow);
+	urlRow.appendChild(urlInput);
+	urlRow.appendChild(copyBtn);
+	card.appendChild(urlRow);
 
-  const errorEl = document.createElement('div');
-  errorEl.className = 'share-error';
-  errorEl.style.display = 'none';
-  card.appendChild(errorEl);
+	const errorEl = document.createElement('div');
+	errorEl.className = 'share-error';
+	errorEl.style.display = 'none';
+	card.appendChild(errorEl);
 
-  const generateBtn = document.createElement('button');
-  generateBtn.className = 'share-btn share-btn-primary';
-  generateBtn.textContent = 'Generate Link';
-  generateBtn.addEventListener('click', () => {
-    handleGenerate(simulationId, generateBtn, urlRow, urlInput, errorEl);
-  });
-  card.appendChild(generateBtn);
+	const generateBtn = document.createElement('button');
+	generateBtn.className = 'share-btn share-btn-primary';
+	generateBtn.textContent = 'Generate Link';
+	generateBtn.addEventListener('click', () => {
+		handleGenerate(simulationId, generateBtn, urlRow, urlInput, errorEl);
+	});
+	card.appendChild(generateBtn);
 
-  const footer = document.createElement('div');
-  footer.className = 'share-footer';
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'share-btn';
-  closeBtn.textContent = 'Close';
-  closeBtn.addEventListener('click', onClose);
-  footer.appendChild(closeBtn);
-  card.appendChild(footer);
+	const footer = document.createElement('div');
+	footer.className = 'share-footer';
+	const closeBtn = document.createElement('button');
+	closeBtn.className = 'share-btn';
+	closeBtn.textContent = 'Close';
+	closeBtn.addEventListener('click', onClose);
+	footer.appendChild(closeBtn);
+	card.appendChild(footer);
 
-  return card;
+	return card;
 }
 
 /**
@@ -110,30 +110,30 @@ function buildModalCard(simulationId: string, onClose: () => void): HTMLElement 
  * @param errorEl - the element for error messaging
  */
 async function handleGenerate(
-  simulationId: string,
-  generateBtn: HTMLButtonElement,
-  urlRow: HTMLElement,
-  urlInput: HTMLInputElement,
-  errorEl: HTMLElement,
+	simulationId: string,
+	generateBtn: HTMLButtonElement,
+	urlRow: HTMLElement,
+	urlInput: HTMLInputElement,
+	errorEl: HTMLElement,
 ): Promise<void> {
-  generateBtn.disabled = true;
-  generateBtn.textContent = 'Generating...';
-  errorEl.style.display = 'none';
+	generateBtn.disabled = true;
+	generateBtn.textContent = 'Generating...';
+	errorEl.style.display = 'none';
 
-  const link = await createShareLink(simulationId);
+	const link = await createShareLink(simulationId);
 
-  if (!link) {
-    errorEl.textContent = 'Failed to generate share link. Please try again.';
-    errorEl.style.display = 'block';
-    generateBtn.disabled = false;
-    generateBtn.textContent = 'Generate Link';
-    return;
-  }
+	if (!link) {
+		errorEl.textContent = 'Failed to generate share link. Please try again.';
+		errorEl.style.display = 'block';
+		generateBtn.disabled = false;
+		generateBtn.textContent = 'Generate Link';
+		return;
+	}
 
-  const url = buildShareUrl(link.share_token);
-  urlInput.value = url;
-  urlRow.style.display = 'flex';
-  generateBtn.style.display = 'none';
+	const url = buildShareUrl(link.share_token);
+	urlInput.value = url;
+	urlRow.style.display = 'flex';
+	generateBtn.style.display = 'none';
 }
 
 /**
@@ -142,13 +142,15 @@ async function handleGenerate(
  * @param copyBtn - button to update with feedback text
  */
 async function handleCopy(urlInput: HTMLInputElement, copyBtn: HTMLButtonElement): Promise<void> {
-  try {
-    await navigator.clipboard.writeText(urlInput.value);
-    copyBtn.textContent = 'Copied!';
-    setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
-  } catch {
-    urlInput.select();
-  }
+	try {
+		await navigator.clipboard.writeText(urlInput.value);
+		copyBtn.textContent = 'Copied!';
+		setTimeout(() => {
+			copyBtn.textContent = 'Copy';
+		}, 2000);
+	} catch {
+		urlInput.select();
+	}
 }
 
 /**
@@ -157,18 +159,20 @@ async function handleCopy(urlInput: HTMLInputElement, copyBtn: HTMLButtonElement
  * @param simulationId - the ID of the simulation to share
  */
 export function showShareModal(simulationId: string): void {
-  ensureStyles();
+	ensureStyles();
 
-  const overlay = document.createElement('div');
-  overlay.className = 'share-overlay';
+	const overlay = document.createElement('div');
+	overlay.className = 'share-overlay';
 
-  const close = (): void => { overlay.remove(); };
+	const close = (): void => {
+		overlay.remove();
+	};
 
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) close();
-  });
+	overlay.addEventListener('click', (e) => {
+		if (e.target === overlay) close();
+	});
 
-  const card = buildModalCard(simulationId, close);
-  overlay.appendChild(card);
-  document.body.appendChild(overlay);
+	const card = buildModalCard(simulationId, close);
+	overlay.appendChild(card);
+	document.body.appendChild(overlay);
 }

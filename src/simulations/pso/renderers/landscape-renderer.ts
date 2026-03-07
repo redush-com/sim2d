@@ -8,11 +8,11 @@ import { drawHeatmap } from '../../../rendering/shared';
  * @returns rgba color string
  */
 function fitnessColorFn(value: number): string {
-  const r = Math.floor(value * 200 + 30);
-  const g = Math.floor(value * 80 + 10);
-  const b = Math.floor((1 - value) * 180 + 40);
-  const a = 0.6 + value * 0.3;
-  return `rgba(${r}, ${g}, ${b}, ${a})`;
+	const r = Math.floor(value * 200 + 30);
+	const g = Math.floor(value * 80 + 10);
+	const b = Math.floor((1 - value) * 180 + 40);
+	const a = 0.6 + value * 0.3;
+	return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
 /**
@@ -24,10 +24,10 @@ function fitnessColorFn(value: number): string {
  * @param height - canvas height in CSS pixels
  */
 export function renderLandscape(
-  ctx: CanvasRenderingContext2D,
-  heatmapData: number[],
-  width: number,
-  height: number
+	ctx: CanvasRenderingContext2D,
+	heatmapData: number[],
+	width: number,
+	height: number,
 ): void {
-  drawHeatmap(ctx, heatmapData, HEATMAP_COLS, HEATMAP_ROWS, width, height, fitnessColorFn);
+	drawHeatmap(ctx, heatmapData, HEATMAP_COLS, HEATMAP_ROWS, width, height, fitnessColorFn);
 }

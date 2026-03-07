@@ -8,7 +8,7 @@ const SIMULATIONS: SimulationDefinition[] = [];
  * @param definition - the simulation to register
  */
 export function register(definition: SimulationDefinition): void {
-  SIMULATIONS.push(definition);
+	SIMULATIONS.push(definition);
 }
 
 /**
@@ -16,7 +16,7 @@ export function register(definition: SimulationDefinition): void {
  * @returns array of all registered simulations
  */
 export function getAll(): SimulationDefinition[] {
-  return [...SIMULATIONS];
+	return [...SIMULATIONS];
 }
 
 /**
@@ -25,5 +25,5 @@ export function getAll(): SimulationDefinition[] {
  * @returns the definition, or undefined if not found
  */
 export function getById(id: string): SimulationDefinition | undefined {
-  return SIMULATIONS.find((s) => s.id === id);
+	return SIMULATIONS.find((s) => s.id === id);
 }

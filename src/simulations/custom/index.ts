@@ -16,36 +16,33 @@ import { navigateTo } from '../../router';
  * @param getCodeFn - function that returns the current editor source code
  * @param saveBtn - the save button element to show feedback on
  */
-async function handleSaveClick(
-  getCodeFn: () => string,
-  saveBtn: HTMLButtonElement
-): Promise<void> {
-  const { user } = authStore.getState();
-  if (!user) {
-    navigateTo('/login');
-    return;
-  }
+async function handleSaveClick(getCodeFn: () => string, saveBtn: HTMLButtonElement): Promise<void> {
+	const { user } = authStore.getState();
+	if (!user) {
+		navigateTo('/login');
+		return;
+	}
 
-  const title = prompt('Enter a title for your simulation:');
-  if (!title) return;
+	const title = prompt('Enter a title for your simulation:');
+	if (!title) return;
 
-  saveBtn.disabled = true;
-  saveBtn.textContent = 'Saving...';
+	saveBtn.disabled = true;
+	saveBtn.textContent = 'Saving...';
 
-  const result = await saveSimulation({
-    title,
-    description: '',
-    sim_type: 'custom',
-    builtin_id: undefined,
-    params: {},
-    source_code: getCodeFn(),
-  });
+	const result = await saveSimulation({
+		title,
+		description: '',
+		sim_type: 'custom',
+		builtin_id: undefined,
+		params: {},
+		source_code: getCodeFn(),
+	});
 
-  saveBtn.textContent = result ? 'Saved!' : 'Error';
-  setTimeout(() => {
-    saveBtn.textContent = 'Save';
-    saveBtn.disabled = false;
-  }, 1500);
+	saveBtn.textContent = result ? 'Saved!' : 'Error';
+	setTimeout(() => {
+		saveBtn.textContent = 'Save';
+		saveBtn.disabled = false;
+	}, 1500);
 }
 
 /**
@@ -55,19 +52,19 @@ async function handleSaveClick(
  * @returns the save button element
  */
 function createSaveButton(getCodeFn: () => string): HTMLButtonElement {
-  const saveBtn = document.createElement('button');
-  saveBtn.className = 'editor-save-btn';
-  saveBtn.textContent = 'Save';
+	const saveBtn = document.createElement('button');
+	saveBtn.className = 'editor-save-btn';
+	saveBtn.textContent = 'Save';
 
-  const updateVisibility = () => {
-    const { user } = authStore.getState();
-    saveBtn.style.display = user ? 'block' : 'none';
-  };
-  updateVisibility();
-  authStore.subscribe(updateVisibility);
+	const updateVisibility = (): void => {
+		const { user } = authStore.getState();
+		saveBtn.style.display = user ? 'block' : 'none';
+	};
+	updateVisibility();
+	authStore.subscribe(updateVisibility);
 
-  saveBtn.addEventListener('click', () => handleSaveClick(getCodeFn, saveBtn));
-  return saveBtn;
+	saveBtn.addEventListener('click', () => handleSaveClick(getCodeFn, saveBtn));
+	return saveBtn;
 }
 
 /**
@@ -78,162 +75,171 @@ function createSaveButton(getCodeFn: () => string): HTMLButtonElement {
  * @returns a controllable simulation instance
  */
 function createCustomSimulation(
-  canvas: HTMLCanvasElement,
-  panel: HTMLElement,
-  savedConfig?: SavedConfig
+	canvas: HTMLCanvasElement,
+	panel: HTMLElement,
+	savedConfig?: SavedConfig,
 ): SimulationInstance {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Failed to get 2D rendering context');
+	const ctx = canvas.getContext('2d');
+	if (!ctx) throw new Error('Failed to get 2D rendering context');
 
-  const sandbox = new SimulationSandbox();
-  let running = false;
+	const sandbox = new SimulationSandbox();
+	let running = false;
 
-  // DPI scaling
-  const applyDpi = () => {
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = canvas.clientWidth * dpr;
-    canvas.height = canvas.clientHeight * dpr;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(dpr, dpr);
-  };
-  applyDpi();
+	// DPI scaling
+	const applyDpi = (): void => {
+		const dpr = window.devicePixelRatio || 1;
+		canvas.width = canvas.clientWidth * dpr;
+		canvas.height = canvas.clientHeight * dpr;
+		ctx.setTransform(1, 0, 0, 1, 0, 0);
+		ctx.scale(dpr, dpr);
+	};
+	applyDpi();
 
-  // Build panel UI
-  panel.innerHTML = '';
-  addEditorStyles(panel);
+	// Build panel UI
+	panel.innerHTML = '';
+	addEditorStyles(panel);
 
-  const title = document.createElement('h1');
-  title.className = 'editor-title';
-  title.textContent = 'Custom Simulation';
-  panel.appendChild(title);
+	const title = document.createElement('h1');
+	title.className = 'editor-title';
+	title.textContent = 'Custom Simulation';
+	panel.appendChild(title);
 
-  const subtitle = document.createElement('p');
-  subtitle.className = 'editor-subtitle';
-  subtitle.textContent = 'Write init() and tick() functions. Use ctx to draw on the canvas.';
-  panel.appendChild(subtitle);
+	const subtitle = document.createElement('p');
+	subtitle.className = 'editor-subtitle';
+	subtitle.textContent = 'Write init() and tick() functions. Use ctx to draw on the canvas.';
+	panel.appendChild(subtitle);
 
-  // Template selector
-  const templates = getTemplates();
-  const templateRow = document.createElement('div');
-  templateRow.className = 'editor-template-row';
-  const templateLabel = document.createElement('span');
-  templateLabel.textContent = 'Template:';
-  templateLabel.className = 'editor-template-label';
-  templateRow.appendChild(templateLabel);
+	// Template selector
+	const templates = getTemplates();
+	const templateRow = document.createElement('div');
+	templateRow.className = 'editor-template-row';
+	const templateLabel = document.createElement('span');
+	templateLabel.textContent = 'Template:';
+	templateLabel.className = 'editor-template-label';
+	templateRow.appendChild(templateLabel);
 
-  for (const tmpl of templates) {
-    const btn = document.createElement('button');
-    btn.className = 'editor-template-btn';
-    btn.textContent = tmpl.name;
-    btn.addEventListener('click', () => { setCode(editorView, tmpl.code); });
-    templateRow.appendChild(btn);
-  }
-  panel.appendChild(templateRow);
+	for (const tmpl of templates) {
+		const btn = document.createElement('button');
+		btn.className = 'editor-template-btn';
+		btn.textContent = tmpl.name;
+		btn.addEventListener('click', () => {
+			setCode(editorView, tmpl.code);
+		});
+		templateRow.appendChild(btn);
+	}
+	panel.appendChild(templateRow);
 
-  // Code editor container
-  const editorContainer = document.createElement('div');
-  editorContainer.className = 'editor-container';
-  panel.appendChild(editorContainer);
+	// Code editor container
+	const editorContainer = document.createElement('div');
+	editorContainer.className = 'editor-container';
+	panel.appendChild(editorContainer);
 
-  const initialCode = savedConfig?.sourceCode || templates[0].code;
-  const editorView = createEditorView(editorContainer, initialCode);
+	const initialCode = savedConfig?.sourceCode || templates[0].code;
+	const editorView = createEditorView(editorContainer, initialCode);
 
-  // Error display
-  const errorDisplay = document.createElement('div');
-  errorDisplay.className = 'editor-error';
-  panel.appendChild(errorDisplay);
+	// Error display
+	const errorDisplay = document.createElement('div');
+	errorDisplay.className = 'editor-error';
+	panel.appendChild(errorDisplay);
 
-  // Button row
-  const btnRow = document.createElement('div');
-  btnRow.className = 'editor-btn-row';
+	// Button row
+	const btnRow = document.createElement('div');
+	btnRow.className = 'editor-btn-row';
 
-  const runBtn = document.createElement('button');
-  runBtn.className = 'editor-run-btn';
-  runBtn.textContent = 'Run';
+	const runBtn = document.createElement('button');
+	runBtn.className = 'editor-run-btn';
+	runBtn.textContent = 'Run';
 
-  const stopBtn = document.createElement('button');
-  stopBtn.className = 'editor-stop-btn';
-  stopBtn.textContent = 'Stop';
+	const stopBtn = document.createElement('button');
+	stopBtn.className = 'editor-stop-btn';
+	stopBtn.textContent = 'Stop';
 
-  const saveBtn = createSaveButton(() => getCode(editorView));
+	const saveBtn = createSaveButton(() => getCode(editorView));
 
-  btnRow.appendChild(runBtn);
-  btnRow.appendChild(stopBtn);
-  btnRow.appendChild(saveBtn);
-  panel.appendChild(btnRow);
+	btnRow.appendChild(runBtn);
+	btnRow.appendChild(stopBtn);
+	btnRow.appendChild(saveBtn);
+	panel.appendChild(btnRow);
 
-  // Info
-  const info = document.createElement('div');
-  info.className = 'editor-info';
-  info.innerHTML = 'Define <code>init({ width, height })</code> and <code>tick(state, dt, ctx)</code>.<br/>The ctx object supports standard Canvas2D drawing methods.';
-  panel.appendChild(info);
+	// Info
+	const info = document.createElement('div');
+	info.className = 'editor-info';
+	info.innerHTML =
+		'Define <code>init({ width, height })</code> and <code>tick(state, dt, ctx)</code>.<br/>The ctx object supports standard Canvas2D drawing methods.';
+	panel.appendChild(info);
 
-  const loop = createLoop(
-    (dt) => {
-      if (!sandbox.isReady()) return;
-      sandbox.tick(dt, ctx);
-      const err = sandbox.getError();
-      errorDisplay.textContent = err || '';
-      errorDisplay.style.display = err ? 'block' : 'none';
-      if (err) loop.stop();
-    },
-    () => {} // drawing happens in sandbox.tick via command replay
-  );
+	const loop = createLoop(
+		(dt) => {
+			if (!sandbox.isReady()) return;
+			sandbox.tick(dt, ctx);
+			const err = sandbox.getError();
+			errorDisplay.textContent = err || '';
+			errorDisplay.style.display = err ? 'block' : 'none';
+			if (err) loop.stop();
+		},
+		(): void => {
+			// drawing happens in sandbox.tick via command replay
+		},
+	);
 
-  /** Compiles code, initializes, and starts the loop */
-  const runCode = () => {
-    const code = getCode(editorView);
-    sandbox.compile(code);
+	/** Compiles code, initializes, and starts the loop */
+	const runCode = (): void => {
+		const code = getCode(editorView);
+		sandbox.compile(code);
 
-    const err = sandbox.getError();
-    if (err) {
-      errorDisplay.textContent = err;
-      errorDisplay.style.display = 'block';
-      return;
-    }
+		const err = sandbox.getError();
+		if (err) {
+			errorDisplay.textContent = err;
+			errorDisplay.style.display = 'block';
+			return;
+		}
 
-    errorDisplay.style.display = 'none';
-    applyDpi();
-    sandbox.initialize(canvas.clientWidth, canvas.clientHeight);
+		errorDisplay.style.display = 'none';
+		applyDpi();
+		sandbox.initialize(canvas.clientWidth, canvas.clientHeight);
 
-    if (sandbox.getError()) {
-      errorDisplay.textContent = sandbox.getError()!;
-      errorDisplay.style.display = 'block';
-      return;
-    }
+		if (sandbox.getError()) {
+			errorDisplay.textContent = sandbox.getError() ?? '';
+			errorDisplay.style.display = 'block';
+			return;
+		}
 
-    loop.start();
-    running = true;
-  };
+		loop.start();
+		running = true;
+	};
 
-  runBtn.addEventListener('click', () => {
-    loop.stop();
-    clearCanvas(ctx, canvas.clientWidth, canvas.clientHeight);
-    runCode();
-  });
+	runBtn.addEventListener('click', () => {
+		loop.stop();
+		clearCanvas(ctx, canvas.clientWidth, canvas.clientHeight);
+		runCode();
+	});
 
-  stopBtn.addEventListener('click', () => {
-    loop.stop();
-    running = false;
-  });
+	stopBtn.addEventListener('click', () => {
+		loop.stop();
+		running = false;
+	});
 
-  const handleResize = () => {
-    applyDpi();
-    if (running && sandbox.isReady()) {
-      sandbox.initialize(canvas.clientWidth, canvas.clientHeight);
-    }
-  };
-  window.addEventListener('resize', handleResize);
+	const handleResize = (): void => {
+		applyDpi();
+		if (running && sandbox.isReady()) {
+			sandbox.initialize(canvas.clientWidth, canvas.clientHeight);
+		}
+	};
+	window.addEventListener('resize', handleResize);
 
-  return {
-    start: () => { runCode(); },
-    stop: () => { loop.stop(); },
-    destroy: () => {
-      loop.stop();
-      editorView.destroy();
-      window.removeEventListener('resize', handleResize);
-    },
-  };
+	return {
+		start: () => {
+			runCode();
+		},
+		stop: () => {
+			loop.stop();
+		},
+		destroy: () => {
+			loop.stop();
+			editorView.destroy();
+			window.removeEventListener('resize', handleResize);
+		},
+	};
 }
 
 /**
@@ -241,8 +247,8 @@ function createCustomSimulation(
  * @param panel - the panel element
  */
 function addEditorStyles(panel: HTMLElement): void {
-  const style = document.createElement('style');
-  style.textContent = `
+	const style = document.createElement('style');
+	style.textContent = `
     .editor-title { font-size: 15px; font-weight: 600; color: #e0e0e8; margin-bottom: 4px; }
     .editor-subtitle { font-size: 11px; color: #666; margin-bottom: 8px; line-height: 1.4; }
     .editor-template-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
@@ -287,13 +293,14 @@ function addEditorStyles(panel: HTMLElement): void {
     .editor-info code { color: #5588ff; font-size: 10px; }
     .sim-panel { width: 380px !important; }
   `;
-  panel.appendChild(style);
+	panel.appendChild(style);
 }
 
 register({
-  id: 'custom',
-  title: 'Custom Simulation',
-  description: 'Write your own simulation in JavaScript. Define init() and tick() functions, use ctx to draw on the canvas. Includes starter templates.',
-  tags: ['custom', 'sandbox', 'code-editor', 'javascript'],
-  create: createCustomSimulation,
+	id: 'custom',
+	title: 'Custom Simulation',
+	description:
+		'Write your own simulation in JavaScript. Define init() and tick() functions, use ctx to draw on the canvas. Includes starter templates.',
+	tags: ['custom', 'sandbox', 'code-editor', 'javascript'],
+	create: createCustomSimulation,
 });

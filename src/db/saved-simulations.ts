@@ -2,17 +2,17 @@ import { supabase, isSupabaseConfigured } from '../auth/supabase-client';
 
 /** Row shape for the saved_simulations table */
 export interface SavedSimulation {
-  id: string;
-  user_id: string;
-  title: string;
-  description: string;
-  sim_type: 'builtin' | 'custom';
-  builtin_id: string | null;
-  params: Record<string, number>;
-  source_code: string | null;
-  visibility: 'private' | 'public';
-  created_at: string;
-  updated_at: string;
+	id: string;
+	user_id: string;
+	title: string;
+	description: string;
+	sim_type: 'builtin' | 'custom';
+	builtin_id: string | null;
+	params: Record<string, number>;
+	source_code: string | null;
+	visibility: 'private' | 'public';
+	created_at: string;
+	updated_at: string;
 }
 
 /**
@@ -20,15 +20,18 @@ export interface SavedSimulation {
  * @returns array of saved simulations, or empty array on error
  */
 export async function getUserSimulations(): Promise<SavedSimulation[]> {
-  if (!isSupabaseConfigured()) return [];
+	if (!isSupabaseConfigured()) return [];
 
-  const { data, error } = await supabase
-    .from('saved_simulations')
-    .select('*')
-    .order('updated_at', { ascending: false });
+	const { data, error } = await supabase
+		.from('saved_simulations')
+		.select('*')
+		.order('updated_at', { ascending: false });
 
-  if (error) { console.error('Failed to fetch simulations:', error); return []; }
-  return data as SavedSimulation[];
+	if (error) {
+		console.error('Failed to fetch simulations:', error);
+		return [];
+	}
+	return data as SavedSimulation[];
 }
 
 /**
@@ -37,30 +40,33 @@ export async function getUserSimulations(): Promise<SavedSimulation[]> {
  * @returns the created row, or null on error
  */
 export async function saveSimulation(sim: {
-  title: string;
-  description?: string;
-  sim_type: 'builtin' | 'custom';
-  builtin_id?: string;
-  params?: Record<string, number>;
-  source_code?: string;
+	title: string;
+	description?: string;
+	sim_type: 'builtin' | 'custom';
+	builtin_id?: string;
+	params?: Record<string, number>;
+	source_code?: string;
 }): Promise<SavedSimulation | null> {
-  if (!isSupabaseConfigured()) return null;
+	if (!isSupabaseConfigured()) return null;
 
-  const { data, error } = await supabase
-    .from('saved_simulations')
-    .insert({
-      title: sim.title,
-      description: sim.description || '',
-      sim_type: sim.sim_type,
-      builtin_id: sim.builtin_id || null,
-      params: sim.params || {},
-      source_code: sim.source_code || null,
-    })
-    .select()
-    .single();
+	const { data, error } = await supabase
+		.from('saved_simulations')
+		.insert({
+			title: sim.title,
+			description: sim.description || '',
+			sim_type: sim.sim_type,
+			builtin_id: sim.builtin_id || null,
+			params: sim.params || {},
+			source_code: sim.source_code || null,
+		})
+		.select()
+		.single();
 
-  if (error) { console.error('Failed to save simulation:', error); return null; }
-  return data as SavedSimulation;
+	if (error) {
+		console.error('Failed to save simulation:', error);
+		return null;
+	}
+	return data as SavedSimulation;
 }
 
 /**
@@ -69,15 +75,15 @@ export async function saveSimulation(sim: {
  * @returns true if successful
  */
 export async function deleteSimulation(id: string): Promise<boolean> {
-  if (!isSupabaseConfigured()) return false;
+	if (!isSupabaseConfigured()) return false;
 
-  const { error } = await supabase
-    .from('saved_simulations')
-    .delete()
-    .eq('id', id);
+	const { error } = await supabase.from('saved_simulations').delete().eq('id', id);
 
-  if (error) { console.error('Failed to delete simulation:', error); return false; }
-  return true;
+	if (error) {
+		console.error('Failed to delete simulation:', error);
+		return false;
+	}
+	return true;
 }
 
 /**
@@ -86,14 +92,14 @@ export async function deleteSimulation(id: string): Promise<boolean> {
  * @returns the simulation, or null if not found
  */
 export async function getSimulationById(id: string): Promise<SavedSimulation | null> {
-  if (!isSupabaseConfigured()) return null;
+	if (!isSupabaseConfigured()) return null;
 
-  const { data, error } = await supabase
-    .from('saved_simulations')
-    .select('*')
-    .eq('id', id)
-    .single();
+	const { data, error } = await supabase
+		.from('saved_simulations')
+		.select('*')
+		.eq('id', id)
+		.single();
 
-  if (error) return null;
-  return data as SavedSimulation;
+	if (error) return null;
+	return data as SavedSimulation;
 }

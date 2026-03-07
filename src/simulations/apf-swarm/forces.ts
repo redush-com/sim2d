@@ -15,12 +15,12 @@ const MAX_ATTRACTIVE_FORCE = 50;
  * @returns attractive force vector
  */
 export function attractiveForce(agentPos: Vec2, goalPos: Vec2, kAtt: number): Vec2 {
-  const diff = vec.sub(goalPos, agentPos);
-  const dist = vec.magnitude(diff);
-  if (dist < 1e-6) return vec.ZERO;
+	const diff = vec.sub(goalPos, agentPos);
+	const dist = vec.magnitude(diff);
+	if (dist < 1e-6) return vec.ZERO;
 
-  const forceMag = Math.min(kAtt * dist, MAX_ATTRACTIVE_FORCE);
-  return vec.scale(vec.normalize(diff), forceMag);
+	const forceMag = Math.min(kAtt * dist, MAX_ATTRACTIVE_FORCE);
+	return vec.scale(vec.normalize(diff), forceMag);
 }
 
 /**
@@ -33,20 +33,20 @@ export function attractiveForce(agentPos: Vec2, goalPos: Vec2, kAtt: number): Ve
  * @returns repulsive force vector away from the obstacle
  */
 export function obstacleRepulsiveForce(
-  agentPos: Vec2,
-  obstacle: Obstacle,
-  kRep: number,
-  d0: number
+	agentPos: Vec2,
+	obstacle: Obstacle,
+	kRep: number,
+	d0: number,
 ): Vec2 {
-  const diff = vec.sub(agentPos, obstacle.position);
-  const rawDist = vec.magnitude(diff) - obstacle.radius;
+	const diff = vec.sub(agentPos, obstacle.position);
+	const rawDist = vec.magnitude(diff) - obstacle.radius;
 
-  if (rawDist > d0) return vec.ZERO;
+	if (rawDist > d0) return vec.ZERO;
 
-  const d = Math.max(rawDist, 0.5);
-  const ratio = (d0 - d) / d;
-  const repMagnitude = kRep * ratio * ratio;
-  return vec.scale(vec.normalize(diff), repMagnitude);
+	const d = Math.max(rawDist, 0.5);
+	const ratio = (d0 - d) / d;
+	const repMagnitude = kRep * ratio * ratio;
+	return vec.scale(vec.normalize(diff), repMagnitude);
 }
 
 /**
@@ -59,20 +59,20 @@ export function obstacleRepulsiveForce(
  * @returns repulsive force vector away from the other agent
  */
 export function interRobotRepulsiveForce(
-  agentPos: Vec2,
-  otherPos: Vec2,
-  kRepRobot: number,
-  dRobot: number
+	agentPos: Vec2,
+	otherPos: Vec2,
+	kRepRobot: number,
+	dRobot: number,
 ): Vec2 {
-  const diff = vec.sub(agentPos, otherPos);
-  const dist = vec.magnitude(diff);
+	const diff = vec.sub(agentPos, otherPos);
+	const dist = vec.magnitude(diff);
 
-  if (dist > dRobot) return vec.ZERO;
+	if (dist > dRobot) return vec.ZERO;
 
-  const d = Math.max(dist, 0.5);
-  const ratio = (dRobot - d) / d;
-  const repMagnitude = kRepRobot * ratio * ratio;
-  return vec.scale(vec.normalize(diff), repMagnitude);
+	const d = Math.max(dist, 0.5);
+	const ratio = (dRobot - d) / d;
+	const repMagnitude = kRepRobot * ratio * ratio;
+	return vec.scale(vec.normalize(diff), repMagnitude);
 }
 
 /**
@@ -86,21 +86,24 @@ export function interRobotRepulsiveForce(
  * @returns the net force vector
  */
 export function totalForce(
-  agentPos: Vec2,
-  goalPos: Vec2,
-  obstacles: Obstacle[],
-  otherAgentPositions: Vec2[],
-  params: ApfParams
+	agentPos: Vec2,
+	goalPos: Vec2,
+	obstacles: Obstacle[],
+	otherAgentPositions: Vec2[],
+	params: ApfParams,
 ): Vec2 {
-  let force = attractiveForce(agentPos, goalPos, params.kAtt);
+	let force = attractiveForce(agentPos, goalPos, params.kAtt);
 
-  for (const obs of obstacles) {
-    force = vec.add(force, obstacleRepulsiveForce(agentPos, obs, params.kRep, params.d0));
-  }
+	for (const obs of obstacles) {
+		force = vec.add(force, obstacleRepulsiveForce(agentPos, obs, params.kRep, params.d0));
+	}
 
-  for (const otherPos of otherAgentPositions) {
-    force = vec.add(force, interRobotRepulsiveForce(agentPos, otherPos, params.kRepRobot, params.dRobot));
-  }
+	for (const otherPos of otherAgentPositions) {
+		force = vec.add(
+			force,
+			interRobotRepulsiveForce(agentPos, otherPos, params.kRepRobot, params.dRobot),
+		);
+	}
 
-  return force;
+	return force;
 }

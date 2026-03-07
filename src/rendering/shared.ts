@@ -6,13 +6,13 @@
  * @param bgColor - background fill color
  */
 export function clearCanvas(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  bgColor = '#0a0a0f'
+	ctx: CanvasRenderingContext2D,
+	width: number,
+	height: number,
+	bgColor = '#0a0a0f',
 ): void {
-  ctx.fillStyle = bgColor;
-  ctx.fillRect(0, 0, width, height);
+	ctx.fillStyle = bgColor;
+	ctx.fillRect(0, 0, width, height);
 }
 
 /**
@@ -24,28 +24,28 @@ export function clearCanvas(
  * @param color - grid line color
  */
 export function drawGrid(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  spacing = 50,
-  color = 'rgba(255, 255, 255, 0.03)'
+	ctx: CanvasRenderingContext2D,
+	width: number,
+	height: number,
+	spacing = 50,
+	color = 'rgba(255, 255, 255, 0.03)',
 ): void {
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 1;
+	ctx.strokeStyle = color;
+	ctx.lineWidth = 1;
 
-  for (let x = spacing; x < width; x += spacing) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, height);
-    ctx.stroke();
-  }
+	for (let x = spacing; x < width; x += spacing) {
+		ctx.beginPath();
+		ctx.moveTo(x, 0);
+		ctx.lineTo(x, height);
+		ctx.stroke();
+	}
 
-  for (let y = spacing; y < height; y += spacing) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(width, y);
-    ctx.stroke();
-  }
+	for (let y = spacing; y < height; y += spacing) {
+		ctx.beginPath();
+		ctx.moveTo(0, y);
+		ctx.lineTo(width, y);
+		ctx.stroke();
+	}
 }
 
 /**
@@ -59,32 +59,38 @@ export function drawGrid(
  * @param headSize - arrowhead size in pixels
  */
 export function drawArrow(
-  ctx: CanvasRenderingContext2D,
-  fromX: number,
-  fromY: number,
-  toX: number,
-  toY: number,
-  color: string,
-  headSize = 6
+	ctx: CanvasRenderingContext2D,
+	fromX: number,
+	fromY: number,
+	toX: number,
+	toY: number,
+	color: string,
+	headSize = 6,
 ): void {
-  const dx = toX - fromX;
-  const dy = toY - fromY;
-  const angle = Math.atan2(dy, dx);
+	const dx = toX - fromX;
+	const dy = toY - fromY;
+	const angle = Math.atan2(dy, dx);
 
-  ctx.beginPath();
-  ctx.moveTo(fromX, fromY);
-  ctx.lineTo(toX, toY);
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
+	ctx.beginPath();
+	ctx.moveTo(fromX, fromY);
+	ctx.lineTo(toX, toY);
+	ctx.strokeStyle = color;
+	ctx.lineWidth = 1.5;
+	ctx.stroke();
 
-  ctx.beginPath();
-  ctx.moveTo(toX, toY);
-  ctx.lineTo(toX - headSize * Math.cos(angle - Math.PI / 6), toY - headSize * Math.sin(angle - Math.PI / 6));
-  ctx.lineTo(toX - headSize * Math.cos(angle + Math.PI / 6), toY - headSize * Math.sin(angle + Math.PI / 6));
-  ctx.closePath();
-  ctx.fillStyle = color;
-  ctx.fill();
+	ctx.beginPath();
+	ctx.moveTo(toX, toY);
+	ctx.lineTo(
+		toX - headSize * Math.cos(angle - Math.PI / 6),
+		toY - headSize * Math.sin(angle - Math.PI / 6),
+	);
+	ctx.lineTo(
+		toX - headSize * Math.cos(angle + Math.PI / 6),
+		toY - headSize * Math.sin(angle + Math.PI / 6),
+	);
+	ctx.closePath();
+	ctx.fillStyle = color;
+	ctx.fill();
 }
 
 /**
@@ -98,23 +104,23 @@ export function drawArrow(
  * @param colorFn - maps a value [0,1] to an rgba color string
  */
 export function drawHeatmap(
-  ctx: CanvasRenderingContext2D,
-  data: number[],
-  cols: number,
-  rows: number,
-  width: number,
-  height: number,
-  colorFn: (value: number) => string
+	ctx: CanvasRenderingContext2D,
+	data: number[],
+	cols: number,
+	rows: number,
+	width: number,
+	height: number,
+	colorFn: (value: number) => string,
 ): void {
-  const cellW = width / cols;
-  const cellH = height / rows;
+	const cellW = width / cols;
+	const cellH = height / rows;
 
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const val = data[r * cols + c];
-      if (val < 0.001) continue;
-      ctx.fillStyle = colorFn(val);
-      ctx.fillRect(c * cellW, r * cellH, cellW + 0.5, cellH + 0.5);
-    }
-  }
+	for (let r = 0; r < rows; r++) {
+		for (let c = 0; c < cols; c++) {
+			const val = data[r * cols + c];
+			if (val < 0.001) continue;
+			ctx.fillStyle = colorFn(val);
+			ctx.fillRect(c * cellW, r * cellH, cellW + 0.5, cellH + 0.5);
+		}
+	}
 }

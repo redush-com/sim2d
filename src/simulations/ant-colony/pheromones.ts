@@ -5,7 +5,7 @@
  * @returns a zero-filled Float32Array of size cols * rows
  */
 export function createPheromoneGrid(cols: number, rows: number): Float32Array {
-  return new Float32Array(cols * rows);
+	return new Float32Array(cols * rows);
 }
 
 /**
@@ -15,10 +15,10 @@ export function createPheromoneGrid(cols: number, rows: number): Float32Array {
  * @param evaporationRate - fraction of pheromone lost per tick
  */
 export function evaporate(grid: Float32Array, evaporationRate: number): void {
-  const factor = 1 - evaporationRate;
-  for (let i = 0; i < grid.length; i++) {
-    grid[i] *= factor;
-  }
+	const factor = 1 - evaporationRate;
+	for (let i = 0; i < grid.length; i++) {
+		grid[i] *= factor;
+	}
 }
 
 /**
@@ -32,15 +32,15 @@ export function evaporate(grid: Float32Array, evaporationRate: number): void {
  * @param pathLength - length of the ant's current path (used as inverse weight)
  */
 export function deposit(
-  grid: Float32Array,
-  cols: number,
-  x: number,
-  y: number,
-  strength: number,
-  pathLength: number
+	grid: Float32Array,
+	cols: number,
+	x: number,
+	y: number,
+	strength: number,
+	pathLength: number,
 ): void {
-  const amount = strength / Math.max(pathLength, 1);
-  grid[y * cols + x] += amount;
+	const amount = strength / Math.max(pathLength, 1);
+	grid[y * cols + x] += amount;
 }
 
 /**
@@ -54,12 +54,12 @@ export function deposit(
  * @returns pheromone concentration at (x, y)
  */
 export function getPheromone(
-  grid: Float32Array,
-  cols: number,
-  rows: number,
-  x: number,
-  y: number
+	grid: Float32Array,
+	cols: number,
+	rows: number,
+	x: number,
+	y: number,
 ): number {
-  if (x < 0 || x >= cols || y < 0 || y >= rows) return 0;
-  return grid[y * cols + x];
+	if (x < 0 || x >= cols || y < 0 || y >= rows) return 0;
+	return grid[y * cols + x];
 }

@@ -8,7 +8,7 @@ import * as vec from '../../math/vector';
  * @returns true if agent velocity is below threshold
  */
 export function isStuck(agent: ApfAgentState, threshold: number): boolean {
-  return vec.magnitude(agent.velocity) < threshold;
+	return vec.magnitude(agent.velocity) < threshold;
 }
 
 /**
@@ -18,10 +18,10 @@ export function isStuck(agent: ApfAgentState, threshold: number): boolean {
  * @returns agent with updated stuckCounter
  */
 export function updateStuckCounter(agent: ApfAgentState, threshold: number): ApfAgentState {
-  return {
-    ...agent,
-    stuckCounter: isStuck(agent, threshold) ? agent.stuckCounter + 1 : 0,
-  };
+	return {
+		...agent,
+		stuckCounter: isStuck(agent, threshold) ? agent.stuckCounter + 1 : 0,
+	};
 }
 
 /**
@@ -32,10 +32,10 @@ export function updateStuckCounter(agent: ApfAgentState, threshold: number): Apf
  * @returns agent with perturbed velocity and reset counter
  */
 export function applyPerturbation(agent: ApfAgentState, strength: number): ApfAgentState {
-  const perturbation = vec.scale(vec.randomUnit(), strength);
-  return {
-    ...agent,
-    velocity: vec.add(agent.velocity, perturbation),
-    stuckCounter: 0,
-  };
+	const perturbation = vec.scale(vec.randomUnit(), strength);
+	return {
+		...agent,
+		velocity: vec.add(agent.velocity, perturbation),
+		stuckCounter: 0,
+	};
 }

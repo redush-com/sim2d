@@ -1,7 +1,7 @@
 /** Starter template for a custom simulation */
 export interface Template {
-  name: string;
-  code: string;
+	name: string;
+	code: string;
 }
 
 /**
@@ -9,12 +9,12 @@ export interface Template {
  * @returns array of named code templates
  */
 export function getTemplates(): Template[] {
-  return [EMPTY_TEMPLATE, PARTICLES_TEMPLATE, FLOCKING_TEMPLATE];
+	return [EMPTY_TEMPLATE, PARTICLES_TEMPLATE, FLOCKING_TEMPLATE];
 }
 
 const EMPTY_TEMPLATE: Template = {
-  name: 'Empty',
-  code: `// Your custom simulation
+	name: 'Empty',
+	code: `// Your custom simulation
 // Return initial state from init(), update it in tick()
 // Use ctx to draw (fillRect, arc, beginPath, stroke, etc.)
 
@@ -37,8 +37,8 @@ function tick(state, dt, ctx) {
 };
 
 const PARTICLES_TEMPLATE: Template = {
-  name: 'Bouncing Particles',
-  code: `// Bouncing particles with gravity
+	name: 'Bouncing Particles',
+	code: `// Bouncing particles with gravity
 
 function init({ width, height }) {
   const particles = [];
@@ -83,8 +83,8 @@ function tick(state, dt, ctx) {
 };
 
 const FLOCKING_TEMPLATE: Template = {
-  name: 'Simple Flocking',
-  code: `// Minimal flocking with separation and cohesion
+	name: 'Simple Flocking',
+	code: `// Minimal flocking with separation and cohesion
 
 function init({ width, height }) {
   const agents = [];

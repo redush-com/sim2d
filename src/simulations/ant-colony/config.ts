@@ -2,11 +2,11 @@ import type { AcoParams } from './types';
 
 /** Default ACO parameters tuned for visually appealing pheromone trail formation */
 export const DEFAULT_PARAMS: AcoParams = {
-  evaporationRate: 0.02,
-  pheromoneStrength: 3,
-  explorationBias: 0.1,
-  antSpeed: 4,
-  antCount: 50,
+	evaporationRate: 0.02,
+	pheromoneStrength: 3,
+	explorationBias: 0.1,
+	antSpeed: 4,
+	antCount: 50,
 };
 
 /** Grid cell size in pixels */

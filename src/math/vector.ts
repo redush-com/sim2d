@@ -7,7 +7,7 @@ import type { Vec2 } from '../types';
  * @returns a new Vec2
  */
 export function create(x: number, y: number): Vec2 {
-  return { x, y };
+	return { x, y };
 }
 
 /**
@@ -17,7 +17,7 @@ export function create(x: number, y: number): Vec2 {
  * @returns the sum vector
  */
 export function add(a: Vec2, b: Vec2): Vec2 {
-  return { x: a.x + b.x, y: a.y + b.y };
+	return { x: a.x + b.x, y: a.y + b.y };
 }
 
 /**
@@ -27,7 +27,7 @@ export function add(a: Vec2, b: Vec2): Vec2 {
  * @returns the difference vector
  */
 export function sub(a: Vec2, b: Vec2): Vec2 {
-  return { x: a.x - b.x, y: a.y - b.y };
+	return { x: a.x - b.x, y: a.y - b.y };
 }
 
 /**
@@ -37,7 +37,7 @@ export function sub(a: Vec2, b: Vec2): Vec2 {
  * @returns the scaled vector
  */
 export function scale(v: Vec2, s: number): Vec2 {
-  return { x: v.x * s, y: v.y * s };
+	return { x: v.x * s, y: v.y * s };
 }
 
 /**
@@ -46,7 +46,7 @@ export function scale(v: Vec2, s: number): Vec2 {
  * @returns the magnitude
  */
 export function magnitude(v: Vec2): number {
-  return Math.sqrt(v.x * v.x + v.y * v.y);
+	return Math.sqrt(v.x * v.x + v.y * v.y);
 }
 
 /**
@@ -55,9 +55,9 @@ export function magnitude(v: Vec2): number {
  * @returns normalized vector
  */
 export function normalize(v: Vec2): Vec2 {
-  const mag = magnitude(v);
-  if (mag < 1e-10) return { x: 0, y: 0 };
-  return { x: v.x / mag, y: v.y / mag };
+	const mag = magnitude(v);
+	if (mag < 1e-10) return { x: 0, y: 0 };
+	return { x: v.x / mag, y: v.y / mag };
 }
 
 /**
@@ -67,7 +67,7 @@ export function normalize(v: Vec2): Vec2 {
  * @returns the distance
  */
 export function distance(a: Vec2, b: Vec2): number {
-  return magnitude(sub(a, b));
+	return magnitude(sub(a, b));
 }
 
 /**
@@ -77,9 +77,9 @@ export function distance(a: Vec2, b: Vec2): number {
  * @returns clamped vector
  */
 export function clampMagnitude(v: Vec2, max: number): Vec2 {
-  const mag = magnitude(v);
-  if (mag <= max) return v;
-  return scale(normalize(v), max);
+	const mag = magnitude(v);
+	if (mag <= max) return v;
+	return scale(normalize(v), max);
 }
 
 /**
@@ -87,8 +87,8 @@ export function clampMagnitude(v: Vec2, max: number): Vec2 {
  * @returns a random direction vector with magnitude 1
  */
 export function randomUnit(): Vec2 {
-  const angle = Math.random() * Math.PI * 2;
-  return { x: Math.cos(angle), y: Math.sin(angle) };
+	const angle = Math.random() * Math.PI * 2;
+	return { x: Math.cos(angle), y: Math.sin(angle) };
 }
 
 /** Zero vector constant */

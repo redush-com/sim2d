@@ -8,14 +8,14 @@ import type { Obstacle } from '../types';
  * @param d0 - obstacle influence distance (shown as halo radius)
  */
 export function renderObstacles(
-  ctx: CanvasRenderingContext2D,
-  obstacles: Obstacle[],
-  d0: number
+	ctx: CanvasRenderingContext2D,
+	obstacles: Obstacle[],
+	d0: number,
 ): void {
-  for (const obs of obstacles) {
-    renderInfluenceGradient(ctx, obs, d0);
-    renderObstacleBody(ctx, obs);
-  }
+	for (const obs of obstacles) {
+		renderInfluenceGradient(ctx, obs, d0);
+		renderObstacleBody(ctx, obs);
+	}
 }
 
 /**
@@ -24,25 +24,25 @@ export function renderObstacles(
  * @param obs - obstacle to render gradient for
  * @param d0 - influence distance threshold
  */
-function renderInfluenceGradient(
-  ctx: CanvasRenderingContext2D,
-  obs: Obstacle,
-  d0: number
-): void {
-  const outerRadius = obs.radius + d0;
-  const gradient = ctx.createRadialGradient(
-    obs.position.x, obs.position.y, obs.radius,
-    obs.position.x, obs.position.y, outerRadius
-  );
-  gradient.addColorStop(0, 'rgba(255, 50, 30, 0.25)');
-  gradient.addColorStop(0.3, 'rgba(255, 50, 30, 0.12)');
-  gradient.addColorStop(0.7, 'rgba(255, 50, 30, 0.04)');
-  gradient.addColorStop(1, 'rgba(255, 50, 30, 0)');
+function renderInfluenceGradient(ctx: CanvasRenderingContext2D, obs: Obstacle, d0: number): void {
+	const outerRadius = obs.radius + d0;
+	const gradient = ctx.createRadialGradient(
+		obs.position.x,
+		obs.position.y,
+		obs.radius,
+		obs.position.x,
+		obs.position.y,
+		outerRadius,
+	);
+	gradient.addColorStop(0, 'rgba(255, 50, 30, 0.25)');
+	gradient.addColorStop(0.3, 'rgba(255, 50, 30, 0.12)');
+	gradient.addColorStop(0.7, 'rgba(255, 50, 30, 0.04)');
+	gradient.addColorStop(1, 'rgba(255, 50, 30, 0)');
 
-  ctx.beginPath();
-  ctx.arc(obs.position.x, obs.position.y, outerRadius, 0, Math.PI * 2);
-  ctx.fillStyle = gradient;
-  ctx.fill();
+	ctx.beginPath();
+	ctx.arc(obs.position.x, obs.position.y, outerRadius, 0, Math.PI * 2);
+	ctx.fillStyle = gradient;
+	ctx.fill();
 }
 
 /**
@@ -51,11 +51,11 @@ function renderInfluenceGradient(
  * @param obs - obstacle to render
  */
 function renderObstacleBody(ctx: CanvasRenderingContext2D, obs: Obstacle): void {
-  ctx.beginPath();
-  ctx.arc(obs.position.x, obs.position.y, obs.radius, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255, 80, 80, 0.7)';
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(255, 120, 120, 0.9)';
-  ctx.lineWidth = 2;
-  ctx.stroke();
+	ctx.beginPath();
+	ctx.arc(obs.position.x, obs.position.y, obs.radius, 0, Math.PI * 2);
+	ctx.fillStyle = 'rgba(255, 80, 80, 0.7)';
+	ctx.fill();
+	ctx.strokeStyle = 'rgba(255, 120, 120, 0.9)';
+	ctx.lineWidth = 2;
+	ctx.stroke();
 }

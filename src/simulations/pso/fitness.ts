@@ -9,11 +9,7 @@ export type FitnessFunction = (x: number, y: number) => number;
  * @returns fitness value (lower is better)
  */
 export function rastrigin(x: number, y: number): number {
-  return (
-    20 +
-    (x * x - 10 * Math.cos(2 * Math.PI * x)) +
-    (y * y - 10 * Math.cos(2 * Math.PI * y))
-  );
+	return 20 + (x * x - 10 * Math.cos(2 * Math.PI * x)) + (y * y - 10 * Math.cos(2 * Math.PI * y));
 }
 
 /**
@@ -24,7 +20,7 @@ export function rastrigin(x: number, y: number): number {
  * @returns fitness value (lower is better)
  */
 export function rosenbrock(x: number, y: number): number {
-  return (1 - x) * (1 - x) + 100 * (y - x * x) * (y - x * x);
+	return (1 - x) * (1 - x) + 100 * (y - x * x) * (y - x * x);
 }
 
 /**
@@ -35,12 +31,12 @@ export function rosenbrock(x: number, y: number): number {
  * @returns fitness value (lower is better)
  */
 export function ackley(x: number, y: number): number {
-  return (
-    -20 * Math.exp(-0.2 * Math.sqrt(0.5 * (x * x + y * y))) -
-    Math.exp(0.5 * (Math.cos(2 * Math.PI * x) + Math.cos(2 * Math.PI * y))) +
-    Math.E +
-    20
-  );
+	return (
+		-20 * Math.exp(-0.2 * Math.sqrt(0.5 * (x * x + y * y))) -
+		Math.exp(0.5 * (Math.cos(2 * Math.PI * x) + Math.cos(2 * Math.PI * y))) +
+		Math.E +
+		20
+	);
 }
 
 /**
@@ -51,16 +47,11 @@ export function ackley(x: number, y: number): number {
  * @returns fitness value (lower is better)
  */
 export function sphere(x: number, y: number): number {
-  return x * x + y * y;
+	return x * x + y * y;
 }
 
 /** Ordered array of all available fitness functions */
-export const FITNESS_FUNCTIONS: FitnessFunction[] = [
-  rastrigin,
-  rosenbrock,
-  ackley,
-  sphere,
-];
+export const FITNESS_FUNCTIONS: FitnessFunction[] = [rastrigin, rosenbrock, ackley, sphere];
 
 /**
  * Returns the fitness function for the given index.
@@ -68,5 +59,5 @@ export const FITNESS_FUNCTIONS: FitnessFunction[] = [
  * @returns the selected fitness function
  */
 export function getFitnessFunction(index: number): FitnessFunction {
-  return FITNESS_FUNCTIONS[Math.max(0, Math.min(index, FITNESS_FUNCTIONS.length - 1))];
+	return FITNESS_FUNCTIONS[Math.max(0, Math.min(index, FITNESS_FUNCTIONS.length - 1))];
 }

@@ -11,18 +11,18 @@ import * as vec from '../../math/vector';
  * @returns separation steering vector (unnormalized)
  */
 export function separation(agent: BoidAgent, neighbors: BoidAgent[]): Vec2 {
-  if (neighbors.length === 0) return vec.ZERO;
+	if (neighbors.length === 0) return vec.ZERO;
 
-  let steer = vec.ZERO;
+	let steer = vec.ZERO;
 
-  for (const other of neighbors) {
-    const diff = vec.sub(agent.position, other.position);
-    const dist = vec.magnitude(diff);
-    if (dist < 1e-6) continue;
-    steer = vec.add(steer, vec.scale(vec.normalize(diff), 1 / dist));
-  }
+	for (const other of neighbors) {
+		const diff = vec.sub(agent.position, other.position);
+		const dist = vec.magnitude(diff);
+		if (dist < 1e-6) continue;
+		steer = vec.add(steer, vec.scale(vec.normalize(diff), 1 / dist));
+	}
 
-  return neighbors.length > 0 ? vec.scale(steer, 1 / neighbors.length) : vec.ZERO;
+	return neighbors.length > 0 ? vec.scale(steer, 1 / neighbors.length) : vec.ZERO;
 }
 
 /**
@@ -33,16 +33,16 @@ export function separation(agent: BoidAgent, neighbors: BoidAgent[]): Vec2 {
  * @returns alignment steering vector pointing toward average neighbor heading
  */
 export function alignment(agent: BoidAgent, neighbors: BoidAgent[]): Vec2 {
-  if (neighbors.length === 0) return vec.ZERO;
+	if (neighbors.length === 0) return vec.ZERO;
 
-  let avgVelocity = vec.ZERO;
+	let avgVelocity = vec.ZERO;
 
-  for (const other of neighbors) {
-    avgVelocity = vec.add(avgVelocity, other.velocity);
-  }
+	for (const other of neighbors) {
+		avgVelocity = vec.add(avgVelocity, other.velocity);
+	}
 
-  avgVelocity = vec.scale(avgVelocity, 1 / neighbors.length);
-  return vec.sub(avgVelocity, agent.velocity);
+	avgVelocity = vec.scale(avgVelocity, 1 / neighbors.length);
+	return vec.sub(avgVelocity, agent.velocity);
 }
 
 /**
@@ -53,14 +53,14 @@ export function alignment(agent: BoidAgent, neighbors: BoidAgent[]): Vec2 {
  * @returns cohesion steering vector pointing toward neighbor center of mass
  */
 export function cohesion(agent: BoidAgent, neighbors: BoidAgent[]): Vec2 {
-  if (neighbors.length === 0) return vec.ZERO;
+	if (neighbors.length === 0) return vec.ZERO;
 
-  let center = vec.ZERO;
+	let center = vec.ZERO;
 
-  for (const other of neighbors) {
-    center = vec.add(center, other.position);
-  }
+	for (const other of neighbors) {
+		center = vec.add(center, other.position);
+	}
 
-  center = vec.scale(center, 1 / neighbors.length);
-  return vec.sub(center, agent.position);
+	center = vec.scale(center, 1 / neighbors.length);
+	return vec.sub(center, agent.position);
 }

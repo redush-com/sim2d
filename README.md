@@ -6,14 +6,14 @@ An interactive web platform for exploring **swarm intelligence** algorithms thro
 
 ## Simulations
 
-| Model | Year | Core Idea |
-|-------|------|-----------|
-| **Artificial Potential Fields** | 1986 | Agents navigate via attractive/repulsive force fields |
-| **Boids (Flocking)** | 1987 | Separation + alignment + cohesion create realistic flocking |
-| **Ant Colony Optimization** | 1992 | Pheromone trails guide ants to shortest paths |
-| **Particle Swarm Optimization** | 1995 | Particles search for optima sharing personal/global bests |
-| **Firefly Algorithm** | 2008 | Dimmer fireflies move toward brighter ones |
-| **Custom Simulation** | -- | Write your own in JavaScript with a built-in code editor |
+| Model                           | Year | Core Idea                                                   |
+| ------------------------------- | ---- | ----------------------------------------------------------- |
+| **Artificial Potential Fields** | 1986 | Agents navigate via attractive/repulsive force fields       |
+| **Boids (Flocking)**            | 1987 | Separation + alignment + cohesion create realistic flocking |
+| **Ant Colony Optimization**     | 1992 | Pheromone trails guide ants to shortest paths               |
+| **Particle Swarm Optimization** | 1995 | Particles search for optima sharing personal/global bests   |
+| **Firefly Algorithm**           | 2008 | Dimmer fireflies move toward brighter ones                  |
+| **Custom Simulation**           | --   | Write your own in JavaScript with a built-in code editor    |
 
 ## Getting Started
 
@@ -92,14 +92,14 @@ Each simulation follows the same plugin pattern: `types.ts`, `config.ts`, `simul
 
 ## URLs
 
-| Path | Screen |
-|------|--------|
-| `/` | Main menu with simulation cards |
-| `/sim/:id` | Run a built-in simulation |
-| `/editor` | Custom simulation code editor |
-| `/profile` | Saved simulations list |
-| `/login` | OAuth sign-in |
-| `/shared/:token` | View a shared simulation |
+| Path             | Screen                          |
+| ---------------- | ------------------------------- |
+| `/`              | Main menu with simulation cards |
+| `/sim/:id`       | Run a built-in simulation       |
+| `/editor`        | Custom simulation code editor   |
+| `/profile`       | Saved simulations list          |
+| `/login`         | OAuth sign-in                   |
+| `/shared/:token` | View a shared simulation        |
 
 ## Deployment
 
@@ -113,8 +113,8 @@ Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as environment variables in
 
 ## References
 
-- Khatib, O. (1986). *Real-time obstacle avoidance for manipulators and mobile robots.*
-- Reynolds, C. (1987). *Flocks, herds and schools: A distributed behavioral model.*
-- Dorigo, M. (1992). *Optimization, learning and natural algorithms.*
-- Kennedy, J. & Eberhart, R. (1995). *Particle swarm optimization.*
-- Yang, X-S. (2008). *Nature-inspired metaheuristic algorithms.*
+- Khatib, O. (1986). _Real-time obstacle avoidance for manipulators and mobile robots._
+- Reynolds, C. (1987). _Flocks, herds and schools: A distributed behavioral model._
+- Dorigo, M. (1992). _Optimization, learning and natural algorithms._
+- Kennedy, J. & Eberhart, R. (1995). _Particle swarm optimization._
+- Yang, X-S. (2008). _Nature-inspired metaheuristic algorithms._
