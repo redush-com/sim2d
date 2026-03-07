@@ -213,7 +213,7 @@ export class Router {
     const logo = document.createElement('a');
     logo.className = 'navbar-logo';
     logo.href = '/';
-    logo.textContent = 'Swarm Intelligence';
+    logo.textContent = 'sim2d';
     logo.addEventListener('click', (e) => { e.preventDefault(); navigateTo('/'); });
     nav.appendChild(logo);
 

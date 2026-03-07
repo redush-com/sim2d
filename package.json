@@ -1,5 +1,5 @@
 {
-  "name": "swarm-intelligence",
+  "name": "sim2d",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -17,8 +17,8 @@
   "bugs": {
     "url": "https://github.com/brnikita/swarm-intelligence/issues"
   },
-  "homepage": "https://github.com/brnikita/swarm-intelligence#readme",
-  "description": "",
+  "homepage": "https://sim2d.com",
+  "description": "Interactive 2D swarm intelligence simulator",
   "devDependencies": {
     "typescript": "^5.9.3",
     "vite": "^7.3.1"

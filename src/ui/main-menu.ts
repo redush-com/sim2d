@@ -20,12 +20,12 @@ export function renderMainMenu(
 
   const header = document.createElement('h1');
   header.className = 'menu-title';
-  header.textContent = 'Swarm Intelligence Simulations';
+  header.textContent = 'sim2d';
   wrapper.appendChild(header);
 
   const subtitle = document.createElement('p');
   subtitle.className = 'menu-subtitle';
-  subtitle.textContent = 'Explore emergent behavior through interactive simulations';
+  subtitle.textContent = 'Interactive 2D swarm intelligence simulations';
   wrapper.appendChild(subtitle);
 
   const grid = document.createElement('div');
