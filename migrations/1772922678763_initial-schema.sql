@@ -1,5 +1,7 @@
 -- Up Migration
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- Profiles (auto-created on sign-up via trigger)
 CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
