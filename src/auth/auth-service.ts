@@ -20,12 +20,22 @@ export function initAuth(): void {
     });
   });
 
-  supabase.auth.onAuthStateChange((_event, session) => {
+  supabase.auth.onAuthStateChange((event, session) => {
+    const wasLoggedIn = !!authStore.getState().user;
     authStore.setState({
       user: session?.user ?? null,
       session,
       loading: false,
     });
+
+    // After successful sign-in, redirect away from login page
+    if (!wasLoggedIn && session?.user && event === 'SIGNED_IN') {
+      const path = window.location.pathname.replace(/\/+$/, '');
+      if (path === '/login' || path === '') {
+        window.history.replaceState(null, '', '/');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }
+    }
   });
 }
 
