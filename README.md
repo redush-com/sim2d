@@ -1,6 +1,6 @@
 # sim2d
 
-An interactive web platform for exploring **swarm intelligence** algorithms through real-time 2D simulations. Built with TypeScript, HTML5 Canvas, Supabase, and deployed on Vercel.
+An interactive web platform for exploring **swarm intelligence** algorithms through real-time 2D simulations.
 
 **[sim2d.com](https://sim2d.com)**
 
